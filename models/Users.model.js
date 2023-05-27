@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   remarks: String,
   password:String,
   
+  
 });
 
 const User = mongoose.model('User', userSchema);

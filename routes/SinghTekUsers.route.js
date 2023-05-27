@@ -1,3 +1,4 @@
+
 const express = require('express');
 const SinghTekRoute = express.Router();
 const bcrypt = require('bcrypt');
@@ -69,9 +70,12 @@ SinghTekRoute.post("/login",async(req,res)=>{
 
 })
 SinghTekRoute.use(auth)
+
 SinghTekRoute.get('/merchants',async(req,res)=>{
-  const singhtekUserId = '64699c85541ed506177ec833';
-  const merchants = await Merchant.find({ singhtek_id: singhtekUserId });
+  
+  const userId = req.body.userId;
+  
+  const merchants = await Merchant.find({ singhtek_id: userId });
   
   return res.status(200).json(merchants);
 })
