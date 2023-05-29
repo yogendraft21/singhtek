@@ -11,6 +11,7 @@ const { Schema } = mongoose;
 const { GridFSBucket } = require('mongodb');
 const fs = require('fs');
 const path = require('path');
+const Withdrawal = require('../models/Withdraw.model');
 
 MerchantRoute.use(express.json());
 require('dotenv').config();
@@ -59,6 +60,7 @@ MerchantRoute.post('/register', async (req, res) => {
   
 
 MerchantRoute.post('/login', async (req, res) => {
+    
   const { email, password } = req.body;
   try {
     const user = await Merchant.findOne({ email: email });
@@ -84,6 +86,69 @@ MerchantRoute.post('/login', async (req, res) => {
 
 MerchantRoute.use(auth);
 
+MerchantRoute.get("/username",async(req,res)=>{
+    const user = await Merchant.findOne({_id:req.body.userId})
+    return res.status(200).json(user.user_name);
+})
+
+MerchantRoute.post("/user/register", async (req, res) => {
+    console.log(req.body)
+    try {
+      const { email, password } = req.body;
+  
+      // Check if the sr_number is already taken
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'email is already taken' });
+      }
+  
+      const startCustomerId = 637801;
+  
+      const lastUser = await User.findOne().sort({ customer_id: -1 });
+      
+      // Generate the next customer_id by incrementing the last assigned id
+      const lastCustomerId = lastUser ? parseInt(lastUser.customer_id) : startCustomerId - 1;
+      const nextCustomerId = lastCustomerId + 1;
+      const customer_id = nextCustomerId.toString().padStart(6, '0'); // Pad with leading zeros if needed
+      
+     
+      // Get merchant_id
+     
+      const merchant_id = req.body.userId;
+  
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Create a new user
+      const newUser = new User({
+        merchant_id: merchant_id,
+        email: req.body.email,
+        customer_id: customer_id,
+        customer_name: req.body.customer_name,
+        phone: req.body.phone,
+        credit_account_no: req.body.credit_account_no,
+        account_name: req.body.account_name,
+        aadhar_number: req.body.aadhar_number,
+        pan_number: req.body.pan_number,
+        password: hashedPassword
+      });
+  
+      // Save the user to the database
+      await newUser.save();
+  
+      res.status(200).json({ message: 'User registered successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An error occurred during registration' });
+    }
+  })
+
+MerchantRoute.get("/getWithdrawals",async(req,res)=>{
+   const id = req.body.userId;
+   const data = await Withdrawal.find({merchantID:id});
+   return res.status(200).json(data)
+})
+
 MerchantRoute.patch('/edit', async (req, res) => {
   const user = await Merchant.findById({ _id: req.body.userId });
   try {
@@ -104,7 +169,7 @@ MerchantRoute.patch('/edit', async (req, res) => {
 });
 
 MerchantRoute.get('/users', async (req, res) => {
-  const merchantId = '6469a40e00c276cde088a6a8';
+  const merchantId = req.body.userId;
   const users = await User.find({ merchant_id: merchantId });
   return res.status(200).json(users);
 });
