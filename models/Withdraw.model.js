@@ -5,31 +5,48 @@ const withdrawalSchema = new mongoose.Schema({
   customer_code: String,
   customer_name: String,
   debit_account_no: String,
-  product_code: String,
+  product_code: {
+    type:String,
+    enum:['RTGS','NEFT','DCR',''],
+    default:''
+  },
   dealer_code: String,
   beneficiary_name: String,
   credit_account_no: String,
-  beneficiary_branch_code: String,
+  beneficiary_branch_code:{
+    type:String,
+    enum:['SBINR120',''],
+    default:''
+  },
   amount: Number,
   remarks: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
   bank_status: {
     type: String,
-    enum: ['allow', 'pending', 'cancel'],
-    default: 'pending'
+    enum: ['Allow', 'Pending', 'Cancel','Hold','Inprogress'],
+    default: 'Pending'
   },
-  utr_number: String,
-  commmission_amount: Number,
-  maker: String,
-  authorizer: String,
-  creation_date: Date,
-  success_date: Date,
-  userId: String,
+  utr_number: {
+    type:String,
+    default:""
+  },
+  transaction_id:{
+    type:String,
+    default:''
+  },
+  userID: String,
   merchantID: String,
-  userID:String,
   merchant_status: {
     type: String,
-    enum: ['allow', 'pending', 'cancel'],
-    default: 'pending'
+    enum: ['Allow', 'Pending', 'Cancel'],
+    default: 'Pending'
   }
 });
 

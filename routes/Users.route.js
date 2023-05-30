@@ -60,6 +60,7 @@ UserRoute.patch("/edit", async (req, res) => {
 })
 
 UserRoute.post('/withdrawal', async (req, res) => {
+  console.log(req.body)
   const { customer_code, ...withdrawalData } = req.body;
   const startWithdrawalId = 5748934;
 
@@ -84,6 +85,7 @@ console.log(withdrawalId);
     await withdrawal.save();
     res.status(201).json({ message: "Your request has been placed" });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: 'An error occurred while creating the withdrawal.' });
   }
 });

@@ -110,10 +110,8 @@ MerchantRoute.post("/user/register", async (req, res) => {
       const lastCustomerId = lastUser ? parseInt(lastUser.customer_id) : startCustomerId - 1;
       const nextCustomerId = lastCustomerId + 1;
       const customer_id = nextCustomerId.toString().padStart(6, '0'); // Pad with leading zeros if needed
-      
      
-      // Get merchant_id
-     
+      // Get merchant_id 
       const merchant_id = req.body.userId;
   
       // Hash the password
@@ -148,6 +146,43 @@ MerchantRoute.get("/getWithdrawals",async(req,res)=>{
    const data = await Withdrawal.find({merchantID:id});
    return res.status(200).json(data)
 })
+
+MerchantRoute.get("/withdrawals/allow",async(req,res)=>{
+    // console.log("hi")
+  try {
+    const withdrawals = await Withdrawal.find({ merchant_status: 'Allow', merchantID: req.body.userId });
+    return res.status(200).json(withdrawals)
+  } catch (error) {
+    // Handle errors
+    console.error('An error occurred while fetching Withdrawal data:', error);
+  }
+  
+})
+
+MerchantRoute.post('/withdrawal/updatestatus', async (req, res) => {
+  // Retrieve the withdrawal ID and merchant status from the request body
+  const { withdrawal_id, merchant_status } = req.body;
+
+  try {
+    // Find the withdrawal by ID
+    const withdrawal = await Withdrawal.findOne({ withdrawal_id });
+
+    if (!withdrawal) {
+      // Withdrawal not found
+      return res.status(404).json({ message: 'Withdrawal not found' });
+    }
+
+    // Update the merchant status
+    withdrawal.merchant_status = merchant_status;
+    await withdrawal.save();
+
+    // Return a response indicating the status update
+    res.json({ message: 'Merchant status updated successfully' });
+  } catch (error) {
+    console.error('An error occurred while updating the merchant status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 MerchantRoute.patch('/edit', async (req, res) => {
   const user = await Merchant.findById({ _id: req.body.userId });
