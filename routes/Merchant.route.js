@@ -27,16 +27,14 @@ MerchantRoute.post('/register', async (req, res) => {
     if (existingMerchant) {
       return res.status(401).json('Merchant already exists');
     }
+
+    const subAdmin = await SinghtekUser.findOne({_id:req.body.userId})
   
     try {
-      const randomSinghtekUserId = await SinghtekUser.aggregate([
-        { $sample: { size: 1 } },
-      ]);
-  
       const hashedPassword = await bcrypt.hash(req.body.password, 10);
   
       const merchant = new Merchant({
-        singhtek_id: randomSinghtekUserId[0]._id,
+        singhtek_id: subAdmin._id,
         user_name: req.body.user_name,
         email: req.body.email,
         mobile: req.body.mobile,
