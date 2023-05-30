@@ -43,6 +43,7 @@ const withdrawalSchema = new mongoose.Schema({
   },
   userID: String,
   merchantID: String,
+  subAdminID:String,
   merchant_status: {
     type: String,
     enum: ['Allow', 'Pending', 'Cancel'],
