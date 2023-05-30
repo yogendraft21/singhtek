@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken')
 const SinghtekUser = require('../models/SinghTekUsers.model');
 const Merchant = require('../models/Merchant.model');
 const { auth } = require('../middleware/auth');
+const Withdrawal = require('../models/Withdraw.model');
 require('dotenv').config()
 SinghTekRoute.get("/",(req,res)=>{
     return res.status(200).json("SinghTek Route")
@@ -48,13 +49,16 @@ SinghTekRoute.post("/register",async(req,res)=>{
 })
 
 SinghTekRoute.post("/login",async(req,res)=>{
+  // console.log(req.body)
     const {email,password} = req.body;
     try {
           const user = await SinghtekUser.findOne({email:email})
+          // console.log(user)
           if(user){
             // compare hashed password with plain password
               bcrypt.compare(password,user.password,(err,result)=>{
                   if(result){
+                    
                     //on success generate token for user
                        const token = jwt.sign({userId:user._id},process.env.TOKEN_KEY);
                        return res.status(200).json(token)
@@ -69,7 +73,16 @@ SinghTekRoute.post("/login",async(req,res)=>{
     }
 
 })
+
 SinghTekRoute.use(auth)
+
+SinghTekRoute.get("/getWithdrawals",async(req,res)=>{
+  
+  const id = req.body.userId;
+  const data = await Withdrawal.find({subAdminID:id});
+  console.log(data)
+  return res.status(200).json(data)
+})
 
 SinghTekRoute.get('/merchants',async(req,res)=>{
   
