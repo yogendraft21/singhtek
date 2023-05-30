@@ -49,7 +49,7 @@ SinghTekRoute.post("/register",async(req,res)=>{
 })
 
 SinghTekRoute.post("/login",async(req,res)=>{
-  // console.log(req.body)
+  console.log(req.body)
     const {email,password} = req.body;
     try {
           const user = await SinghtekUser.findOne({email:email})
@@ -75,6 +75,41 @@ SinghTekRoute.post("/login",async(req,res)=>{
 })
 
 SinghTekRoute.use(auth)
+
+SinghTekRoute.post('/merchant/register', async (req, res) => {
+  // console.log(req.body);
+  const existingMerchant = await Merchant.findOne({ email: req.body.email });
+
+  if (existingMerchant) {
+    return res.status(401).json('Merchant already exists');
+  }
+  // console.log(req.body.userId)
+  const subAdmin = await SinghtekUser.findOne({_id:req.body.userId})
+
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    const merchant = new Merchant({
+      singhtek_id: subAdmin._id,
+      user_name: req.body.user_name,
+      email: req.body.email,
+      mobile: req.body.mobile,
+      password: hashedPassword,
+      transaction_limit: req.body.transaction_limit,
+      amount:req.body.amount,
+      business_detail: req.body.business_detail,
+      business_address: req.body.business_address,
+      kyc_documents: req.body.kyc_documents, // Assign directly if it's an object
+    });
+
+    await merchant.save();
+
+    res.status(200).json({ message: 'Merchant signup successful' });
+  } catch (error) {
+    console.log(error);
+    res.status(401).json({ error: 'An error occurred during merchant signup' });
+  }
+});
 
 SinghTekRoute.get("/getWithdrawals",async(req,res)=>{
   
