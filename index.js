@@ -10,9 +10,7 @@ const UserRoute = require('./routes/Users.route');
 const AdminRoute = require('./routes/Admin.route');
 const PayoutRoute = require('./routes/Payout.route');
 
-app.use(cors({
-    origin:'*'
-}))
+app.use(cors());
 
 app.get("/",(req,res)=>{
     return res.status(200).json("Payout Backend")
