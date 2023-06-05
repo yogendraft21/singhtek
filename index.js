@@ -6,6 +6,16 @@ const app = express();
 
 app.use(express.json())
 const cors = require('cors');
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    headers: "*",
+    credentials: true,
+    maxAge: 600,
+  })
+);
+
 const UserRoute = require('./routes/Users.route');
 const AdminRoute = require('./routes/Admin.route');
 const PayoutRoute = require('./routes/Payout.route');
