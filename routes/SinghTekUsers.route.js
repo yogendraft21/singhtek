@@ -49,11 +49,11 @@ SinghTekRoute.post("/register",async(req,res)=>{
 })
 
 SinghTekRoute.post("/login",async(req,res)=>{
-  console.log(req.body)
+  // console.log(req.body)
     const {email,password} = req.body;
     try {
           const user = await SinghtekUser.findOne({email:email})
-          // console.log(user)
+          console.log(user)
           if(user){
             // compare hashed password with plain password
               bcrypt.compare(password,user.password,(err,result)=>{
@@ -62,6 +62,8 @@ SinghTekRoute.post("/login",async(req,res)=>{
                     //on success generate token for user
                        const token = jwt.sign({userId:user._id},process.env.TOKEN_KEY);
                        return res.status(200).json(token)
+                  }else{
+                    return res.status(401).json("check email and password")
                   }
               })
           }else{
