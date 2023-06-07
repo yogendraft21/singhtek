@@ -164,4 +164,29 @@ SinghTekRoute.post('/merchant/updatestatus', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
+  // Retrieve the withdrawal ID and merchant status from the request body
+  const { withdrawal_id, merchant_status } = req.body;
+
+  try {
+    // Find the withdrawal by ID
+    const withdrawal = await Withdrawal.findOne({ withdrawal_id });
+
+    if (!withdrawal) {
+      // Withdrawal not found
+      return res.status(404).json({ message: 'Withdrawal not found' });
+    }
+
+    // Update the merchant status
+    withdrawal.merchant_status = merchant_status;
+    await withdrawal.save();
+
+    // Return a response indicating the status update
+    res.json({ message: 'Merchant status updated successfully' });
+  } catch (error) {
+    console.error('An error occurred while updating the merchant status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 module.exports = SinghTekRoute;
