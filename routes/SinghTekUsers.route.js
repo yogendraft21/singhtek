@@ -124,7 +124,7 @@ SinghTekRoute.get("/getWithdrawals",async(req,res)=>{
 
 SinghTekRoute.get("/getWithdrawals/:merchantid",async(req,res)=>{
   const mid = req.params.merchantid;
-  const data = await Withdrawal.find({subAdminID:req.body.userId,merchantID:mid,merchant_status:'Allow'});
+  const data = await Withdrawal.find({subAdminID:req.body.userId,merchantID:mid});
   // console.log(data)
   return res.status(200).json(data)
 })
