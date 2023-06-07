@@ -7,6 +7,7 @@ const SinghtekUser = require('../models/SinghTekUsers.model');
 const Merchant = require('../models/Merchant.model');
 const { auth } = require('../middleware/auth');
 const Withdrawal = require('../models/Withdraw.model');
+const User = require('../models/Users.model');
 require('dotenv').config()
 SinghTekRoute.get("/",(req,res)=>{
     return res.status(200).json("SinghTek Route")
@@ -137,4 +138,29 @@ SinghTekRoute.get('/merchants',async(req,res)=>{
   
   return res.status(200).json(merchants);
 })
+
+SinghTekRoute.post('/merchant/updatestatus', async (req, res) => {
+  // Retrieve the withdrawal ID and merchant status from the request body
+  const { merchant_id, merchant_status } = req.body;
+
+  try {
+    // Find the withdrawal by ID
+    const user = await Merchant.findOne({_id:merchant_id });
+
+    if (!user) {
+      // Withdrawal not found
+      return res.status(404).json({ message: 'user not found' });
+    }
+
+    // Update the merchant status
+    user.status = merchant_status;
+    await withdrawal.save();
+
+    // Return a response indicating the status update
+    res.json({ message: 'Merchant status updated successfully' });
+  } catch (error) {
+    console.error('An error occurred while updating the merchant status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 module.exports = SinghTekRoute;
