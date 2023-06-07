@@ -124,10 +124,20 @@ SinghTekRoute.get("/getWithdrawals",async(req,res)=>{
 
 SinghTekRoute.get("/getWithdrawals/:merchantid",async(req,res)=>{
   const mid = req.params.merchantid;
-  const id = req.body.userId;
   const data = await Withdrawal.find({subAdminID:id,merchantID:mid,merchant_status:'Allow'});
-  console.log(data)
+  // console.log(data)
   return res.status(200).json(data)
+})
+
+SinghTekRoute.get("/allWithdrawals",async(req,res)=>{
+  const id = req.body.userId;
+   try {
+    const data = await Withdrawal.find({subAdminID:id,merchant_status:'Allow'});
+    // console.log(data)
+    return res.status(200).json(data)
+   } catch (error) {
+    return res.status(400).json("error while fetching request's")
+   }
 })
 
 SinghTekRoute.get('/merchants',async(req,res)=>{
