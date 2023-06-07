@@ -47,8 +47,8 @@ const merchantSchema = new Schema({
   kyc_documents: kycDocumentsSchema,
   status: {
     type: String,
-    enum: ['allow', 'cancel', 'pending'],
-    default: 'pending',
+    enum: ['Allow', 'Cancel', 'Pending'],
+    default: 'Pending',
   },
 });
 

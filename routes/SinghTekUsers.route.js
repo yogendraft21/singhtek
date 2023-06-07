@@ -142,6 +142,7 @@ SinghTekRoute.get('/merchants',async(req,res)=>{
 SinghTekRoute.post('/merchant/updatestatus', async (req, res) => {
   // Retrieve the withdrawal ID and merchant status from the request body
   const { merchant_id, merchant_status } = req.body;
+  console.log(req.body)
 
   try {
     // Find the withdrawal by ID
@@ -154,7 +155,7 @@ SinghTekRoute.post('/merchant/updatestatus', async (req, res) => {
 
     // Update the merchant status
     user.status = merchant_status;
-    await withdrawal.save();
+    await user.save();
 
     // Return a response indicating the status update
     res.json({ message: 'Merchant status updated successfully' });
