@@ -8,6 +8,7 @@ const Merchant = require('../models/Merchant.model');
 const { auth } = require('../middleware/auth');
 const Withdrawal = require('../models/Withdraw.model');
 const User = require('../models/Users.model');
+const multer = require('multer')
 require('dotenv').config()
 SinghTekRoute.get("/",(req,res)=>{
     return res.status(200).json("SinghTek Route")
@@ -79,40 +80,95 @@ SinghTekRoute.post("/login",async(req,res)=>{
 
 SinghTekRoute.use(auth)
 
-SinghTekRoute.post('/merchant/register', async (req, res) => {
-  // console.log(req.body);
-  const existingMerchant = await Merchant.findOne({ email: req.body.email });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '../uploads/'); // Choose the directory to store the files
+  },
+  filename: function (req, file, cb) {
+    const date = Date.now().toString();
+    const filename = date + '-' + file.originalname;
+    cb(null, filename);
+  },
+});
 
-  if (existingMerchant) {
-    return res.status(401).json('Merchant already exists');
-  }
-  // console.log(req.body.userId)
-  const subAdmin = await SinghtekUser.findOne({_id:req.body.userId})
+const upload = multer({ storage });
 
+SinghTekRoute.post('/merchant/register', upload.fields([
+  { name: 'companyPanCard', maxCount: 1 },
+  { name: 'companyGST', maxCount: 1 },
+  { name: 'bankStatement', maxCount: 1 },
+]), async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const { email } = req.body;
 
+    // Check if the merchant already exists
+    const existingMerchant = await Merchant.findOne({ email });
+    if (existingMerchant) {
+      return res.status(401).json('Merchant already exists');
+    }
+
+    // Find the corresponding subAdmin user
+    const subAdmin = await SinghtekUser.findOne({ _id: userId });
+    if (!subAdmin) {
+      return res.status(401).json('SubAdmin not found');
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Get file paths from the request
+    const companyPanCard = req.files['companyPanCard'][0].path;
+    const companyGST = req.files['companyGST'][0].path;
+    const bankStatement = req.files['bankStatement'][0].path;
+
+    // Create a new merchant
     const merchant = new Merchant({
       singhtek_id: subAdmin._id,
-      user_name: req.body.user_name,
-      email: req.body.email,
-      mobile: req.body.mobile,
+      user_name,
+      email,
+      mobile,
       password: hashedPassword,
-      transaction_limit: req.body.transaction_limit,
-      amount:req.body.amount,
-      business_detail: req.body.business_detail,
-      business_address: req.body.business_address,
-      kyc_documents: req.body.kyc_documents, // Assign directly if it's an object
+      transaction_limit,
+      amount,
+      business_detail: {
+        merchant_name: business_detail.merchant_name,
+        business_name: business_detail.business_name,
+        business_type: business_detail.business_type,
+        business_category: business_detail.business_category,
+        business_sub_category: business_detail.business_sub_category,
+        company_expenditure: business_detail.company_expenditure,
+        website: business_detail.website,
+        bank_name: business_detail.bank_name,
+        bank_account_number: business_detail.bank_account_number,
+        bank_ifsc_code: business_detail.bank_ifsc_code,
+        gst: business_detail.gst,
+        pan_number: business_detail.pan_number,
+        aadhar_number: business_detail.aadhar_number,
+      },
+      business_address: {
+        address: business_address.address,
+        pincode: business_address.pincode,
+        city: business_address.city,
+        state: business_address.state,
+        country: business_address.country,
+      },
+      kyc_documents: {
+        company_pan_card: companyPanCard,
+        company_gst: companyGST,
+        bank_statement: bankStatement,
+      },
     });
 
+    // Save the merchant to the database
     await merchant.save();
 
     res.status(200).json({ message: 'Merchant signup successful' });
   } catch (error) {
     console.log(error);
-    res.status(401).json({ error: 'An error occurred during merchant signup' });
+    res.status(500).json({ error: 'An error occurred during merchant signup' });
   }
 });
+
 
 SinghTekRoute.get("/getWithdrawals",async(req,res)=>{
   
@@ -202,16 +258,16 @@ SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
 
 
 SinghTekRoute.put("/update/withdrawals", async (req, res) => {
+
+  // console.log(req.body)
   try {
     const updatedData = req.body; // Array of objects containing the updated data
 
     // Loop through the updated data array and update the rows based on the withdrawal ID
-    for (let i = 0; i < updatedData.length; i++) {
-      const withdrawalId = updatedData[i].withdrawal_id;
-
-      // Find the row in the database by withdrawal ID and update it with the new data
-      await Withdrawal.findOneAndUpdate({ withdrawal_id: withdrawalId }, updatedData[i], { new: true });
-    }
+    updatedData.forEach(async(data)=>{
+      console.log(data)
+      await Withdrawal.findOneAndUpdate({ withdrawal_id: data.withdrawal_id }, data, { new: true });
+    })
 
     res.status(200).json({ message: 'Data updated successfully' });
   } catch (error) {
