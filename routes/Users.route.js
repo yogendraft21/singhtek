@@ -74,13 +74,13 @@ console.log(withdrawalId);
 
   try {
     // const user = await User.findOne({ customer_id: customer_code });
-    const merchantUser = await Merchant.findOne({_id:req.body.merchant_id})
+    const merchantUser = await Merchant.findOne({_id:req.body.merchantID})
     console.log(merchantUser);
     const withdrawal = new Withdrawal({
       withdrawal_id: withdrawalId,
       customer_code,
       ...withdrawalData,
-      merchantID: req.body.merchant_id,
+      merchantID: req.body.merchantID,
       subAdminID:merchantUser.singhtek_id
     });
 
