@@ -41,7 +41,6 @@ const withdrawalSchema = new mongoose.Schema({
     type:String,
     default:''
   },
-  userID: String,
   merchantID: String,
   subAdminID:String,
   merchant_status: {
