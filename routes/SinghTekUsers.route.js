@@ -199,4 +199,25 @@ SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
+SinghTekRoute.put("/update/withdrawals", async (req, res) => {
+  try {
+    const updatedData = req.body; // Array of objects containing the updated data
+
+    // Loop through the updated data array and update the rows based on the withdrawal ID
+    for (let i = 0; i < updatedData.length; i++) {
+      const withdrawalId = updatedData[i].withdrawal_id;
+
+      // Find the row in the database by withdrawal ID and update it with the new data
+      await Withdrawal.findOneAndUpdate({ withdrawal_id: withdrawalId }, updatedData[i], { new: true });
+    }
+
+    res.status(200).json({ message: 'Data updated successfully' });
+  } catch (error) {
+    console.error('Error updating data:', error);
+    res.status(500).json({ error: 'An error occurred while updating data' });
+  }
+});
+
 module.exports = SinghTekRoute;

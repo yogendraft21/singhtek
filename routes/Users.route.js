@@ -60,7 +60,7 @@ UserRoute.patch("/edit", async (req, res) => {
 })
 
 UserRoute.post('/withdrawal', async (req, res) => {
-  
+
   console.log(req.body)
   const { customer_code, ...withdrawalData } = req.body;
   const startWithdrawalId = 5748934;
@@ -79,7 +79,7 @@ console.log(withdrawalId);
       withdrawal_id: withdrawalId,
       customer_code,
       ...withdrawalData,
-      merchantID: user.merchant_id,
+      merchantID: req.body.merchant_id,
       subAdminID:merchantUser.singhtek_id
     });
 
@@ -90,6 +90,8 @@ console.log(withdrawalId);
     res.status(500).json({ error: 'An error occurred while creating the withdrawal.' });
   }
 });
+
+
 
 
 
