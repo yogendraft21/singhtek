@@ -21,7 +21,7 @@ const withdrawalSchema = new mongoose.Schema({
   },
   product_code: {
     type:String,
-    enum:['RTGS','NEFT','DCR',''],
+    enum:['RTGS','NEFT','DSR',''],
     default:''
   },
   dealer_code: String,
@@ -29,7 +29,6 @@ const withdrawalSchema = new mongoose.Schema({
   credit_account_no: String,
   beneficiary_branch_code:{
     type:String,
-    required:true
   },
   amount: Number,
   remarks: String,

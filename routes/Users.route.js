@@ -60,38 +60,52 @@ UserRoute.patch("/edit", async (req, res) => {
 })
 
 UserRoute.post('/withdrawal', async (req, res) => {
-
-  console.log(req.body)
-  const { merchant_status,bank_status, ...withdrawalData } = req.body;
+  console.log(req.body);
+  const { merchant_status, bank_status, branch_beneficiary_code, amount, ...withdrawalData } = req.body;
   const startWithdrawalId = 5748934;
 
-const lastWithdrawal = await Withdrawal.findOne().sort({ withdrawal_id: -1 });
-const lastWithdrawalId = lastWithdrawal ? parseInt(lastWithdrawal.withdrawal_id.substring(3)) : startWithdrawalId - 1;
-const nextWithdrawalId = lastWithdrawalId + 1;
-const withdrawalId = `WD-${nextWithdrawalId.toString().padStart(8, '0')}`;
-console.log(withdrawalId);
-
+  const lastWithdrawal = await Withdrawal.findOne().sort({ withdrawal_id: -1 });
+  const lastWithdrawalId = lastWithdrawal ? parseInt(lastWithdrawal.withdrawal_id.substring(3)) : startWithdrawalId - 1;
+  const nextWithdrawalId = lastWithdrawalId + 1;
+  const withdrawalId = `WD-${nextWithdrawalId.toString().padStart(8, '0')}`;
+  console.log(withdrawalId);
 
   try {
-    // const user = await User.findOne({ customer_id: customer_code });
-    const merchantUser = await Merchant.findOne({_id:req.body.merchantID})
+    const merchantUser = await Merchant.findOne({ _id: req.body.merchantID });
     console.log(merchantUser);
+
+    let product_code = ''; // Variable to store the product_code
+
+    // Check if the first four characters of branch_beneficiary_code are "SBIN" (case-insensitive)
+    if (branch_beneficiary_code.substring(0, 4).toUpperCase() === 'SBIN') {
+      product_code = 'DSR';
+    } else {
+      // Check if amount is greater than 20000
+      if (amount > 20000) {
+        product_code = 'RTGS';
+      } else {
+        product_code = 'NEFT';
+      }
+    }
+
     const withdrawal = new Withdrawal({
       withdrawal_id: withdrawalId,
-      merchant_status:'Pending',
-      bank_status:'Pending',
+      merchant_status: 'Pending',
+      bank_status: 'Pending',
+      product_code, // Assign the product_code based on the checks above
       ...withdrawalData,
       merchantID: req.body.merchantID,
-      subAdminID:merchantUser.singhtek_id
+      subAdminID: merchantUser.singhtek_id
     });
 
     await withdrawal.save();
     res.status(201).json({ message: "Your request has been placed" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ error: 'An error occurred while creating the withdrawal.' });
   }
 });
+
 
 
 

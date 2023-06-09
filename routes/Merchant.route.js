@@ -48,10 +48,10 @@ MerchantRoute.post('/login', async (req, res) => {
 
 MerchantRoute.use(auth);
 
-MerchantRoute.get("/username",async(req,res)=>{
+MerchantRoute.get("/detail",async(req,res)=>{
     const user = await Merchant.findOne({_id:req.body.userId});
-    console.log(user.user_name)
-    return res.status(200).json(user.user_name);
+    // console.log(user)
+    return res.status(200).json(user);
 })
 
 MerchantRoute.post("/user/register", async (req, res) => {
