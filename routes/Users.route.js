@@ -61,7 +61,7 @@ UserRoute.patch("/edit", async (req, res) => {
 
 UserRoute.post('/withdrawal', async (req, res) => {
   console.log(req.body);
-  const { merchant_status, bank_status, branch_beneficiary_code, amount, ...withdrawalData } = req.body;
+  const { merchant_status, bank_status, beneficiary_branch_code, amount, ...withdrawalData } = req.body;
   const startWithdrawalId = 5748934;
 
   const lastWithdrawal = await Withdrawal.findOne().sort({ withdrawal_id: -1 });
@@ -76,11 +76,15 @@ UserRoute.post('/withdrawal', async (req, res) => {
 
     let product_code = ''; // Variable to store the product_code
 
-    // Check if the first four characters of branch_beneficiary_code are "SBIN" (case-insensitive)
-    if (branch_beneficiary_code.substring(0, 4).toUpperCase() === 'SBIN') {
-      product_code = 'DSR';
-    } else {
-      // Check if amount is greater than 20000
+    if (beneficiary_branch_code && beneficiary_branch_code.length >= 4) {
+      // Check if the first four characters of beneficiary_branch_code are "SBIN" (case-insensitive)
+      if (beneficiary_branch_code.substring(0, 4).toUpperCase() === 'SBIN') {
+        product_code = 'DSR';
+      }
+    }
+
+    // If product_code is still empty, perform the amount check
+    if (product_code === '') {
       if (amount > 20000) {
         product_code = 'RTGS';
       } else {
@@ -92,7 +96,7 @@ UserRoute.post('/withdrawal', async (req, res) => {
       withdrawal_id: withdrawalId,
       merchant_status: 'Pending',
       bank_status: 'Pending',
-      product_code, // Assign the product_code based on the checks above
+      product_code,
       ...withdrawalData,
       merchantID: req.body.merchantID,
       subAdminID: merchantUser.singhtek_id
@@ -105,6 +109,7 @@ UserRoute.post('/withdrawal', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while creating the withdrawal.' });
   }
 });
+
 
 
 
