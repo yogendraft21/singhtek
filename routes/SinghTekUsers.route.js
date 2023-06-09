@@ -220,7 +220,7 @@ SinghTekRoute.get("/getWithdrawals/:merchantid", async (req, res) => {
 SinghTekRoute.get("/allWithdrawals", async (req, res) => {
   const id = req.body.userId;
   try {
-    const data = await Withdrawal.find({ subAdminID: id, merchant_status: 'Allow' });
+    const data = await Withdrawal.find({ subAdminID: id, merchant_status: 'Allow',bank_status:"Pending" });
     // console.log(data)
     return res.status(200).json(data)
   } catch (error) {
