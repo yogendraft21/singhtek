@@ -106,7 +106,7 @@ MerchantRoute.post("/user/register", async (req, res) => {
 
 MerchantRoute.get("/getWithdrawals",async(req,res)=>{
    const id = req.body.userId;
-   const data = await Withdrawal.find({merchantID:id});
+   const data = await Withdrawal.find({merchantID:id,bank_status:"Pending"});
    return res.status(200).json(data)
 })
 
