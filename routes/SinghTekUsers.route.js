@@ -249,6 +249,16 @@ SinghTekRoute.delete('/delete/merchant/:id', async (req, res) => {
   }
 })
 
+SinghTekRoute.delete('/delete/withdrawal/:id', async (req, res) => {
+  const sid = req.body.userId;
+  const wid = req.params.id;
+  try {
+    await Withdrawal.findOneAndDelete({ withdrawal_id:wid, subAdminID:sid});
+    return res.status(200).json("withdrawal deleted success")
+  } catch (error) {
+    return res.status(401).json("error while deleting withdrawal")
+  }
+});
 
 SinghTekRoute.post('/merchant/updatestatus', async (req, res) => {
   // Retrieve the withdrawal ID and merchant status from the request body
