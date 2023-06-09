@@ -97,6 +97,7 @@ UserRoute.post('/withdrawal', async (req, res) => {
       merchant_status: 'Pending',
       bank_status: 'Pending',
       product_code,
+      amount,
       ...withdrawalData,
       merchantID: req.body.merchantID,
       subAdminID: merchantUser.singhtek_id
