@@ -144,7 +144,7 @@ MerchantRoute.post('/withdrawal/updatestatus', async (req, res) => {
 
     if (!withdrawal) {
       // Withdrawal not found
-      return res.status(404).json({ message: 'Withdrawal not found' });
+      return res.status(404).json({ error: 'Withdrawal not found' });
     }
 
     // Update the merchant status
@@ -156,7 +156,7 @@ MerchantRoute.post('/withdrawal/updatestatus', async (req, res) => {
 
       if (!merchant) {
         // Merchant not found
-        return res.status(404).json({ message: 'Merchant not found' });
+        return res.status(404).json({ error: 'Merchant not found' });
       }
 
       // Calculate the updated merchant amount
@@ -164,7 +164,7 @@ MerchantRoute.post('/withdrawal/updatestatus', async (req, res) => {
 
       if (updatedMerchantAmount < 0) {
         // Insufficient balance
-        return res.status(400).json({ message: 'Insufficient balance for withdrawal' });
+        return res.status(400).json({ error: 'Insufficient balance for withdrawal' });
       }
 
       // Update the merchant amount
@@ -179,7 +179,7 @@ MerchantRoute.post('/withdrawal/updatestatus', async (req, res) => {
     res.json({ message: 'Merchant status updated successfully' });
   } catch (error) {
     console.error('An error occurred while updating the merchant status:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
