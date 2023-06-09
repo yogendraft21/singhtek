@@ -96,6 +96,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 SinghTekRoute.post('/merchant/register', upload.fields([
+  
   { name: 'companyPanCard', maxCount: 1 },
   { name: 'companyGST', maxCount: 1 },
   { name: 'bankStatement', maxCount: 1 },

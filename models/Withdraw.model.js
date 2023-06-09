@@ -2,9 +2,23 @@ const mongoose = require('mongoose');
 
 const withdrawalSchema = new mongoose.Schema({
   withdrawal_id: String,
-  customer_code: String,
-  customer_name: String,
-  debit_account_no: String,
+  user_id:String,
+  user_name:String,
+  customer_code:{
+    type:String,
+    enum:['299054'],
+    default:'299054'
+  },
+  customer_name:{
+    type:String,
+    enum:['Singhtek Infolution OPC Pvt Ltd'],
+    default:'Singhtek Infolution OPC Pvt Ltd'
+  },
+  debit_account_no: {
+    type:String,
+    enum:['41752120260'],
+    default:'41752120260'
+  },
   product_code: {
     type:String,
     enum:['RTGS','NEFT','DCR',''],
@@ -15,8 +29,7 @@ const withdrawalSchema = new mongoose.Schema({
   credit_account_no: String,
   beneficiary_branch_code:{
     type:String,
-    enum:['SBINR120',''],
-    default:''
+    required:true
   },
   amount: Number,
   remarks: String,
