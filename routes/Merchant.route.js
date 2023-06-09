@@ -50,7 +50,7 @@ MerchantRoute.use(auth);
 
 MerchantRoute.get("/username",async(req,res)=>{
     const user = await Merchant.findOne({_id:req.body.userId});
-    // console.log(user.user_name)
+    console.log(user.user_name)
     return res.status(200).json(user.user_name);
 })
 
@@ -107,6 +107,11 @@ MerchantRoute.post("/user/register", async (req, res) => {
 MerchantRoute.get("/getWithdrawals",async(req,res)=>{
    const id = req.body.userId;
    const data = await Withdrawal.find({merchantID:id,bank_status:"Pending"});
+   return res.status(200).json(data)
+})
+MerchantRoute.get("/getWithdrawals/sucess",async(req,res)=>{
+   const id = req.body.userId;
+   const data = await Withdrawal.find({merchantID:id,bank_status:"Success"});
    return res.status(200).json(data)
 })
 
