@@ -45,7 +45,7 @@ const withdrawalSchema = new mongoose.Schema({
   },
   bank_status: {
     type: String,
-    enum: ['Success', 'Pending', 'Failed','Hold'],
+    enum: ['SUCCESSFULLY', 'Pending', 'REJECT','APPROVED','INPROCESS','HOLD'],
     default: 'Pending'
   },
   utr_number: {

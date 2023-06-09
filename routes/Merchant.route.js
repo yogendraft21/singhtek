@@ -111,13 +111,20 @@ MerchantRoute.get("/getWithdrawals",async(req,res)=>{
 })
 MerchantRoute.get("/getWithdrawals/sucess",async(req,res)=>{
    const id = req.body.userId;
-   const data = await Withdrawal.find({merchantID:id,bank_status:"Success"});
+   const data = await Withdrawal.find({merchantID:id,bank_status:"SUCCESSFULLY"});
+   return res.status(200).json(data)
+})
+
+MerchantRoute.get("/getWithdrawals/failed",async(req,res)=>{
+   const id = req.body.userId;
+   const data = await Withdrawal.find({merchantID:id,bank_status:"REJECT"});
    return res.status(200).json(data)
 })
 
 MerchantRoute.get("/withdrawals/allow",async(req,res)=>{
     // console.log("hi")
   try {
+
     const withdrawals = await Withdrawal.find({ merchant_status: 'Allow', merchantID: req.body.userId });
     return res.status(200).json(withdrawals)
   } catch (error) {
@@ -142,6 +149,30 @@ MerchantRoute.post('/withdrawal/updatestatus', async (req, res) => {
 
     // Update the merchant status
     withdrawal.merchant_status = merchant_status;
+
+    if (merchant_status === 'Allow') {
+      // Find the corresponding merchant
+      const merchant = await Merchant.findOne({ _id: withdrawal.merchantID });
+
+      if (!merchant) {
+        // Merchant not found
+        return res.status(404).json({ message: 'Merchant not found' });
+      }
+
+      // Calculate the updated merchant amount
+      const updatedMerchantAmount = merchant.amount - withdrawal.amount;
+
+      if (updatedMerchantAmount < 0) {
+        // Insufficient balance
+        return res.status(400).json({ message: 'Insufficient balance for withdrawal' });
+      }
+
+      // Update the merchant amount
+      merchant.amount = updatedMerchantAmount;
+      await merchant.save();
+    }
+
+    // Save the withdrawal
     await withdrawal.save();
 
     // Return a response indicating the status update
@@ -151,6 +182,7 @@ MerchantRoute.post('/withdrawal/updatestatus', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 MerchantRoute.patch('/edit', async (req, res) => {
   const user = await Merchant.findById({ _id: req.body.userId });
