@@ -172,14 +172,14 @@ MerchantRoute.get('/users', async (req, res) => {
   return res.status(200).json(users);
 });
 
-MerchantRoute.delete('/user', async (req, res) => {
-  const id = '6469c3af44b168ca8bf055e8';
+MerchantRoute.delete('/delete/withdrawal/:id', async (req, res) => {
+  const mid = req.body.userId;
+  const wid = req.params.id;
   try {
-    const user = await User.findByIdAndDelete({ _id: id });
-    console.log(user);
-    return res.status(200).json({ message: 'User deleted successfully' });
+    await Withdrawal.findOneAndDelete({ withdrawal_id:wid, merchantID:mid});
+    return res.status(200).json("withdrawal deleted success")
   } catch (error) {
-    return res.status(401).json({ error: 'error while deleting user' });
+    return res.status(401).json("error while deleting withdrawal")
   }
 });
 

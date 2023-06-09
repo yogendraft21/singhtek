@@ -9,84 +9,86 @@ const { auth } = require('../middleware/auth');
 const Withdrawal = require('../models/Withdraw.model');
 const User = require('../models/Users.model');
 const multer = require('multer')
+const fs = require('fs');
 require('dotenv').config()
-SinghTekRoute.get("/",(req,res)=>{
-    return res.status(200).json("SinghTek Route")
+SinghTekRoute.get("/", (req, res) => {
+  return res.status(200).json("SinghTek Route")
 })
 
-SinghTekRoute.post("/register",async(req,res)=>{
-    try {
-        const { username, department, first_name, email, designation, mobile_no, user_type, last_name, password, image, docsFile } = req.body;
-        // Check if the username or email already exists
-        const existingUser = await SinghtekUser.findOne({ email: email });
-    
-        if (existingUser) {
-          return res.status(409).json({ message: 'Username or email already exists' });
-        }
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // Create a new SinghtekUser instance
-        const singhtekUser = new SinghtekUser({
-          username,
-          department,
-          first_name,
-          email,
-          designation,
-          mobile_no,
-          user_type,
-          last_name,
-          password: hashedPassword,
-          image,
-          docsFile,
-        });
-    
-        // Save the SinghtekUser to the database
-        await singhtekUser.save();
-        res.status(201).json({ message: 'SinghtekUser signed up successfully' });
-      } catch (error) {
-        console.error('Error signing up SinghtekUser:', error);
-        res.status(500).json({ message: 'Internal server error' });
-      }
+SinghTekRoute.post("/register", async (req, res) => {
+  try {
+    const { username, department, first_name, email, designation, mobile_no, user_type, last_name, password, image, docsFile } = req.body;
+    // Check if the username or email already exists
+    const existingUser = await SinghtekUser.findOne({ email: email });
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username or email already exists' });
+    }
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new SinghtekUser instance
+    const singhtekUser = new SinghtekUser({
+      username,
+      department,
+      first_name,
+      email,
+      designation,
+      mobile_no,
+      user_type,
+      last_name,
+      password: hashedPassword,
+      image,
+      docsFile,
+    });
+
+    // Save the SinghtekUser to the database
+    await singhtekUser.save();
+    res.status(201).json({ message: 'SinghtekUser signed up successfully' });
+  } catch (error) {
+    console.error('Error signing up SinghtekUser:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 })
 
-SinghTekRoute.post("/login",async(req,res)=>{
+SinghTekRoute.post("/login", async (req, res) => {
   // console.log(req.body)
-    const {email,password} = req.body;
-    try {
-          const user = await SinghtekUser.findOne({email:email})
-          console.log(user)
-          if(user){
-            // compare hashed password with plain password
-              bcrypt.compare(password,user.password,(err,result)=>{
-                  if(result){
-                    
-                    //on success generate token for user
-                       const token = jwt.sign({userId:user._id},process.env.TOKEN_KEY);
-                       return res.status(200).json(token)
-                  }else{
-                    return res.status(401).json("check email and password")
-                  }
-              })
-          }else{
-             return res.status(401).json("User Not found")
-          }
-          
-    } catch (error) {
-        return res.status(401).json({error:'error while login singhtek user'})
+  const { email, password } = req.body;
+  try {
+    const user = await SinghtekUser.findOne({ email: email })
+    console.log(user)
+    if (user) {
+      // compare hashed password with plain password
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (result) {
+
+          //on success generate token for user
+          const token = jwt.sign({ userId: user._id }, process.env.TOKEN_KEY);
+          return res.status(200).json(token)
+        } else {
+          return res.status(401).json("check email and password")
+        }
+      })
+    } else {
+      return res.status(401).json("User Not found")
     }
 
-})
+  } catch (error) {
+    return res.status(401).json({ error: 'error while login singhtek user' })
+  }
 
-SinghTekRoute.use(auth)
+})
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../uploads/'); // Choose the directory to store the files
+    const destinationDir = './uploads/';
+    fs.mkdirSync(destinationDir, { recursive: true }); // Create the destination directory if it doesn't exist
+    cb(null, destinationDir);
   },
   filename: function (req, file, cb) {
     const date = Date.now().toString();
-    const filename = date + '-' + file.originalname;
+    const originalname = file.originalname;
+    const filename = `${date}-${originalname}`; // Add date and time to the filename
     cb(null, filename);
   },
 });
@@ -97,7 +99,7 @@ SinghTekRoute.post('/merchant/register', upload.fields([
   { name: 'companyPanCard', maxCount: 1 },
   { name: 'companyGST', maxCount: 1 },
   { name: 'bankStatement', maxCount: 1 },
-]), async (req, res) => {
+]), auth, async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -108,49 +110,77 @@ SinghTekRoute.post('/merchant/register', upload.fields([
     }
 
     // Find the corresponding subAdmin user
-    const subAdmin = await SinghtekUser.findOne({ _id: userId });
+    const subAdmin = await SinghtekUser.findOne({ _id: req.body.userId });
     if (!subAdmin) {
       return res.status(401).json('SubAdmin not found');
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     // Get file paths from the request
     const companyPanCard = req.files['companyPanCard'][0].path;
     const companyGST = req.files['companyGST'][0].path;
     const bankStatement = req.files['bankStatement'][0].path;
 
+    // Extract data from business_detail
+    const businessDetail = JSON.parse(req.body.business_detail);
+    const {
+      merchant_name,
+      business_name,
+      business_type,
+      business_category,
+      business_sub_category,
+      company_expenditure,
+      website,
+      bank_name,
+      bank_account_number,
+      bank_ifsc_code,
+      gst,
+      pan_number,
+      aadhar_number
+    } = businessDetail;
+
+    // Extract data from business_address
+    const businessAddress = JSON.parse(req.body.business_address);
+    const {
+      address,
+      pincode,
+      city,
+      state,
+      country
+    } = businessAddress;
+
     // Create a new merchant
     const merchant = new Merchant({
       singhtek_id: subAdmin._id,
-      user_name,
-      email,
-      mobile,
+      user_name: req.body.user_name,
+      email: req.body.email,
+      mobile: req.body.mobile,
       password: hashedPassword,
-      transaction_limit,
-      amount,
+      transaction_limit: req.body.transaction_limit,
+      amount: req.body.amount,
       business_detail: {
-        merchant_name: business_detail.merchant_name,
-        business_name: business_detail.business_name,
-        business_type: business_detail.business_type,
-        business_category: business_detail.business_category,
-        business_sub_category: business_detail.business_sub_category,
-        company_expenditure: business_detail.company_expenditure,
-        website: business_detail.website,
-        bank_name: business_detail.bank_name,
-        bank_account_number: business_detail.bank_account_number,
-        bank_ifsc_code: business_detail.bank_ifsc_code,
-        gst: business_detail.gst,
-        pan_number: business_detail.pan_number,
-        aadhar_number: business_detail.aadhar_number,
+        merchant_name,
+        business_name,
+        business_type,
+        business_category,
+        business_sub_category,
+        company_expenditure,
+        website,
+        bank_name,
+        bank_account_number,
+        bank_ifsc_code,
+        gst,
+        pan_number,
+        aadhar_number,
       },
       business_address: {
-        address: business_address.address,
-        pincode: business_address.pincode,
-        city: business_address.city,
-        state: business_address.state,
-        country: business_address.country,
+        address,
+        pincode,
+        city,
+        state,
+        country,
       },
       kyc_documents: {
         company_pan_card: companyPanCard,
@@ -170,40 +200,55 @@ SinghTekRoute.post('/merchant/register', upload.fields([
 });
 
 
-SinghTekRoute.get("/getWithdrawals",async(req,res)=>{
-  
+SinghTekRoute.use(auth);
+
+SinghTekRoute.get("/getWithdrawals", async (req, res) => {
+
   const id = req.body.userId;
-  const data = await Withdrawal.find({subAdminID:id,merchant_status:'Allow'});
+  const data = await Withdrawal.find({ subAdminID: id, merchant_status: 'Allow' });
   console.log(data)
   return res.status(200).json(data)
 })
 
-SinghTekRoute.get("/getWithdrawals/:merchantid",async(req,res)=>{
+SinghTekRoute.get("/getWithdrawals/:merchantid", async (req, res) => {
   const mid = req.params.merchantid;
-  const data = await Withdrawal.find({subAdminID:req.body.userId,merchantID:mid});
+  const data = await Withdrawal.find({ subAdminID: req.body.userId, merchantID: mid });
   // console.log(data)
   return res.status(200).json(data)
 })
 
-SinghTekRoute.get("/allWithdrawals",async(req,res)=>{
+SinghTekRoute.get("/allWithdrawals", async (req, res) => {
   const id = req.body.userId;
-   try {
-    const data = await Withdrawal.find({subAdminID:id,merchant_status:'Allow'});
+  try {
+    const data = await Withdrawal.find({ subAdminID: id, merchant_status: 'Allow' });
     // console.log(data)
     return res.status(200).json(data)
-   } catch (error) {
+  } catch (error) {
     return res.status(400).json("error while fetching request's")
-   }
+  }
 })
 
-SinghTekRoute.get('/merchants',async(req,res)=>{
-  
+SinghTekRoute.get('/merchants', async (req, res) => {
+
   const userId = req.body.userId;
-  
+
   const merchants = await Merchant.find({ singhtek_id: userId });
-  
+
   return res.status(200).json(merchants);
 })
+
+SinghTekRoute.delete('/delete/merchant/:id', async (req, res) => {
+
+  const userId = req.body.userId;
+  const mid = req.params.id;
+  try {
+    await Merchant.findOneAndDelete({ singhtek_id: userId, _id:mid });
+    return res.status(200).json("Merchant Deleted Success")
+  } catch (error) {
+    return res.status(401).json("Error while deleteting merchant")
+  }
+})
+
 
 SinghTekRoute.post('/merchant/updatestatus', async (req, res) => {
   // Retrieve the withdrawal ID and merchant status from the request body
@@ -212,7 +257,7 @@ SinghTekRoute.post('/merchant/updatestatus', async (req, res) => {
 
   try {
     // Find the withdrawal by ID
-    const user = await Merchant.findOne({_id:merchant_id });
+    const user = await Merchant.findOne({ _id: merchant_id });
 
     if (!user) {
       // Withdrawal not found
@@ -256,7 +301,6 @@ SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
   }
 });
 
-
 SinghTekRoute.put("/update/withdrawals", async (req, res) => {
 
   // console.log(req.body)
@@ -264,7 +308,7 @@ SinghTekRoute.put("/update/withdrawals", async (req, res) => {
     const updatedData = req.body; // Array of objects containing the updated data
 
     // Loop through the updated data array and update the rows based on the withdrawal ID
-    updatedData.forEach(async(data)=>{
+    updatedData.forEach(async (data) => {
       console.log(data)
       await Withdrawal.findOneAndUpdate({ withdrawal_id: data.withdrawal_id }, data, { new: true });
     })

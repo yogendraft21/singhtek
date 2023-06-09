@@ -2,7 +2,13 @@ const express = require('express');
 const { Connection } = require('./config/db');
 const SinghTekRoute = require('./routes/SinghTekUsers.route');
 const MerchantRoute = require('./routes/Merchant.route');
+const bodyParser = require('body-parser');
 const app = express();
+// Set the maximum payload size limit to 50MB (adjust as needed)
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+
 
 app.use(express.json())
 const cors = require('cors');
