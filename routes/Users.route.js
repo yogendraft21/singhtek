@@ -85,7 +85,7 @@ UserRoute.post('/withdrawal', async (req, res) => {
 
     // If product_code is still empty, perform the amount check
     if (product_code === '') {
-      if (amount > 20000) {
+      if (amount > 200000) {
         product_code = 'RTGS';
       } else {
         product_code = 'NEFT';
