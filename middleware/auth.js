@@ -14,14 +14,14 @@ const auth = (req,res,next)=>{
                 // console.log(userId);
                 next();
             }else{
-                res.status(500).json("Invalid Credential")
+                res.status(500).json({message:"Invalid Credential"})
             }
         }else{
-            res.status(500).json("You are not Authorize user")
+            res.status(500).json({message:"You are not Authorize user"})
         }
     } catch (error) {
         console.log(error);
-        res.status(500).json("Problem with auth")
+        res.status(500).json({message:"Problem with auth"})
     }
 }
 module.exports={
