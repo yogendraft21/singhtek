@@ -60,59 +60,56 @@ UserRoute.patch("/edit", async (req, res) => {
 })
 
 UserRoute.post('/withdrawal', async (req, res) => {
-  // console.log(req.body);
-  const { merchant_status, bank_status, beneficiary_branch_code, amount, ...withdrawalData } = req.body;
   const startWithdrawalId = 5748934;
-
   const lastWithdrawal = await Withdrawal.findOne().sort({ withdrawal_id: -1 });
   const lastWithdrawalId = lastWithdrawal ? parseInt(lastWithdrawal.withdrawal_id.substring(3)) : startWithdrawalId - 1;
   const nextWithdrawalId = lastWithdrawalId + 1;
-  const withdrawalId = `WD-${nextWithdrawalId.toString().padStart(8, '0')}`;
-  console.log(withdrawalId);
 
+  const id = req.body[0].dealer_code;
   try {
-    const merchantUser = await Merchant.findOne({ _id: req.body.dealer_code });
-    console.log(merchantUser);
+    const merchantUser = await Merchant.findOne({ _id: id });
+    console.log(merchantUser)
+    const withdrawals = req.body.map((withdrawalData, index) => {
+      const withdrawalId = `WD-${(nextWithdrawalId + index).toString().padStart(8, '0')}`;
+      let product_code = '';
 
-    let product_code = ''; // Variable to store the product_code
-
-    if (beneficiary_branch_code && beneficiary_branch_code.length >= 4) {
-      // Check if the first four characters of beneficiary_branch_code are "SBIN" (case-insensitive)
-      if (beneficiary_branch_code.substring(0, 4).toUpperCase() === 'SBIN') {
-        product_code = 'DSR';
+      if (withdrawalData.beneficiary_branch_code && withdrawalData.beneficiary_branch_code.length >= 4) {
+        if (withdrawalData.beneficiary_branch_code.substring(0, 4).toUpperCase() === 'SBIN') {
+          product_code = 'DSR';
+        }
       }
-    }
 
-    // If product_code is still empty, perform the amount check
-    if (product_code === '') {
-      if (amount > 200000) {
-        product_code = 'RTGS';
-      } else {
-        product_code = 'NEFT';
+      if (product_code === '') {
+        if (withdrawalData.amount > 200000) {
+          product_code = 'RTGS';
+        } else {
+          product_code = 'NEFT';
+        }
       }
-    }
 
-    const withdrawal = new Withdrawal({
-      withdrawal_id: withdrawalId,
-      merchant_status: 'Pending',
-      bank_status: 'Pending',
-      product_code,
-      beneficiary_branch_code,
-      amount,
-      remarks_1:withdrawalId,
-      dealer_code:req.body.dealer_code,
-      ...withdrawalData,
-      merchantID: req.body.dealer_code,
-      subAdminID: merchantUser.singhtek_id
+      return new Withdrawal({
+        withdrawal_id: withdrawalId,
+        merchant_status: 'Pending',
+        bank_status: 'Pending',
+        product_code,
+        beneficiary_branch_code: withdrawalData.beneficiary_branch_code,
+        amount: withdrawalData.amount,
+        remarks_1: withdrawalId,
+        dealer_code: withdrawalData.dealer_code,
+        merchantID: withdrawalData.dealer_code,
+        subAdminID: merchantUser.singhtek_id,
+        ...withdrawalData
+      });
     });
 
-    await withdrawal.save();
-    res.status(201).json({ message: "Your request has been placed" });
+    await Withdrawal.insertMany(withdrawals);
+    res.status(201).json({ message: "Your requests have been placed" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'An error occurred while creating the withdrawal.' });
+    res.status(500).json({ error: 'An error occurred while creating the withdrawals.' });
   }
 });
+
 
 
 
