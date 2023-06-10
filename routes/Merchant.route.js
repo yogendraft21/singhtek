@@ -104,16 +104,38 @@ MerchantRoute.post("/user/register", async (req, res) => {
     }
   })
 
-MerchantRoute.get("/getWithdrawals",async(req,res)=>{
-   const id = req.body.userId;
-   const data = await Withdrawal.find({merchantID:id,bank_status:"Pending"});
-   return res.status(200).json(data)
-})
+  MerchantRoute.get("/getWithdrawals", async (req, res) => {
+    const { userId } = req.body;
+    try {
+      const data = await Withdrawal.find({ merchantID: userId, bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] } });
+      return res.status(200).json(data);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "An error occurred while retrieving the data." });
+    }
+  });
+  
+
 MerchantRoute.get("/getWithdrawals/sucess",async(req,res)=>{
    const id = req.body.userId;
    const data = await Withdrawal.find({merchantID:id,bank_status:"SUCCESSFULLY"});
    return res.status(200).json(data)
 })
+
+MerchantRoute.get("/getWithdrawals/pending", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    const data = await Withdrawal.find({
+      merchantID: userId,
+      bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] }
+    });
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred while retrieving the data." });
+  }
+});
+
 
 MerchantRoute.get("/getWithdrawals/failed",async(req,res)=>{
    const id = req.body.userId;
