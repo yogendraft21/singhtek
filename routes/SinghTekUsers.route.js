@@ -321,7 +321,7 @@ SinghTekRoute.put("/update/withdrawals", async (req, res) => {
     // Loop through the updated data array and update the rows based on the withdrawal ID
     updatedData.forEach(async (data) => {
       console.log(data)
-      await Withdrawal.findOneAndUpdate({ withdrawal_id: data.withdrawal_id }, data, { new: true });
+      await Withdrawal.findOneAndUpdate({ withdrawal_id: data.remarks_1 }, data, { new: true });
     })
 
     res.status(200).json({ message: 'Data updated successfully' });
