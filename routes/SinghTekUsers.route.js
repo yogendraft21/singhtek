@@ -311,18 +311,14 @@ SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
 SinghTekRoute.put("/update/withdrawals", async (req, res) => {
-
-  // console.log(req.body)
   try {
-    const updatedData = req.body; // Array of objects containing the updated data
+    const updatedData = req.body; 
 
-    // Loop through the updated data array and update the rows based on the withdrawal ID
-    updatedData.forEach(async (data) => {
-      console.log(data)
-      await Withdrawal.findOneAndUpdate({ withdrawal_id: data.remarks_1 }, data, { new: true });
-    })
+    for (const data of updatedData) {
+      data.updatedAt = new Date(); 
+      await Withdrawal.findOneAndUpdate({ withdrawal_id: data.withdrawal_id }, data, { new: true });
+    }
 
     res.status(200).json({ message: 'Data updated successfully' });
   } catch (error) {
@@ -330,5 +326,6 @@ SinghTekRoute.put("/update/withdrawals", async (req, res) => {
     res.status(500).json({ error: 'An error occurred while updating data' });
   }
 });
+
 
 module.exports = SinghTekRoute;
