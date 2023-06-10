@@ -60,7 +60,7 @@ UserRoute.patch("/edit", async (req, res) => {
 })
 
 UserRoute.post('/withdrawal', async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { merchant_status, bank_status, beneficiary_branch_code, amount, ...withdrawalData } = req.body;
   const startWithdrawalId = 5748934;
 
@@ -71,7 +71,7 @@ UserRoute.post('/withdrawal', async (req, res) => {
   console.log(withdrawalId);
 
   try {
-    const merchantUser = await Merchant.findOne({ _id: req.body.merchantID });
+    const merchantUser = await Merchant.findOne({ _id: req.body.dealer_code });
     console.log(merchantUser);
 
     let product_code = ''; // Variable to store the product_code
@@ -99,8 +99,9 @@ UserRoute.post('/withdrawal', async (req, res) => {
       product_code,
       beneficiary_branch_code,
       amount,
+      dealer_code:req.body.dealer_code,
       ...withdrawalData,
-      merchantID: req.body.merchantID,
+      merchantID: req.body.dealer_code,
       subAdminID: merchantUser.singhtek_id
     });
 

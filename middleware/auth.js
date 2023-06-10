@@ -15,7 +15,7 @@ const auth = (req,res,next)=>{
                 next();
             }else{
                 res.status(500).json({message:"Invalid Credential"})
-            }
+            } 
         }else{
             res.status(500).json({message:"You are not Authorize user"})
         }
