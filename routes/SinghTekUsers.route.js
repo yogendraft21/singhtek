@@ -311,13 +311,15 @@ SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 SinghTekRoute.put("/update/withdrawals", async (req, res) => {
   try {
-    const updatedData = req.body; 
+    const updatedData = req.body; // Array of objects containing the updated data
 
     for (const data of updatedData) {
-      data.updatedAt = new Date(); 
-      await Withdrawal.findOneAndUpdate({ withdrawal_id: data.withdrawal_id }, data, { new: true });
+      data.updatedAt = new Date(); // Update the updatedAt field with the current date
+
+      await Withdrawal.findOneAndUpdate({ withdrawal_id: data.remarks_1 }, data, { new: true });
     }
 
     res.status(200).json({ message: 'Data updated successfully' });
