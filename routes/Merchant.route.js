@@ -127,6 +127,7 @@ MerchantRoute.get("/getWithdrawals/pending", async (req, res) => {
   try {
     const data = await Withdrawal.find({
       merchantID: userId,
+      merchant_status:'Allow',
       bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] }
     });
     return res.status(200).json(data);
