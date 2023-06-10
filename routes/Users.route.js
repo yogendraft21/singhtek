@@ -63,14 +63,16 @@ UserRoute.post('/withdrawal', async (req, res) => {
   const startWithdrawalId = 5748934;
   const lastWithdrawal = await Withdrawal.findOne().sort({ withdrawal_id: -1 });
   const lastWithdrawalId = lastWithdrawal ? parseInt(lastWithdrawal.withdrawal_id.substring(3)) : startWithdrawalId - 1;
-  const nextWithdrawalId = lastWithdrawalId + 1;
+  let nextWithdrawalId = lastWithdrawalId + 1;
 
-  const id = req.body[0].dealer_code;
+  let withdrawalDataArray = Array.isArray(req.body) ? req.body : [req.body];
+
   try {
-    const merchantUser = await Merchant.findOne({ _id: id });
-    console.log(merchantUser)
-    const withdrawals = req.body.map((withdrawalData, index) => {
-      const withdrawalId = `WD-${(nextWithdrawalId + index).toString().padStart(8, '0')}`;
+    for (const withdrawalData of withdrawalDataArray) {
+      const id = withdrawalData.dealer_code;
+      const merchantUser = await Merchant.findOne({ _id: id });
+
+      const withdrawalId = `WD-${nextWithdrawalId.toString().padStart(8, '0')}`;
       let product_code = '';
 
       if (withdrawalData.beneficiary_branch_code && withdrawalData.beneficiary_branch_code.length >= 4) {
@@ -87,7 +89,7 @@ UserRoute.post('/withdrawal', async (req, res) => {
         }
       }
 
-      return new Withdrawal({
+      const withdrawal = new Withdrawal({
         withdrawal_id: withdrawalId,
         merchant_status: 'Pending',
         bank_status: 'Pending',
@@ -100,15 +102,19 @@ UserRoute.post('/withdrawal', async (req, res) => {
         subAdminID: merchantUser.singhtek_id,
         ...withdrawalData
       });
-    });
 
-    await Withdrawal.insertMany(withdrawals);
-    res.status(201).json({ message: "Your requests have been placed" });
+      await withdrawal.save();
+      nextWithdrawalId++;
+    }
+
+    res.status(201).json({ message: 'Your requests have been placed' });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'An error occurred while creating the withdrawals.' });
   }
 });
+
+
 
 
 
