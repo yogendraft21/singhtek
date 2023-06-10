@@ -99,6 +99,7 @@ UserRoute.post('/withdrawal', async (req, res) => {
       product_code,
       beneficiary_branch_code,
       amount,
+      remarks_1:withdrawalId,
       dealer_code:req.body.dealer_code,
       ...withdrawalData,
       merchantID: req.body.dealer_code,

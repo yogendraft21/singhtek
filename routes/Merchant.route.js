@@ -137,7 +137,7 @@ MerchantRoute.get("/withdrawals/allow",async(req,res)=>{
 MerchantRoute.post('/withdrawal/updatestatus', async (req, res) => {
   // Retrieve the withdrawal ID and merchant status from the request body
   const { withdrawal_id, merchant_status } = req.body;
-  // console.log(req.body)
+  console.log(req.body)
   try {
     // Find the withdrawal by ID
     const withdrawal = await Withdrawal.findOne({ withdrawal_id });

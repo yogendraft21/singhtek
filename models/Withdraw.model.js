@@ -31,7 +31,7 @@ const withdrawalSchema = new mongoose.Schema({
     type:String,
   },
   amount: Number,
-  remarks: {
+  remarks_1: {
     type:String,
     default:''
   },
