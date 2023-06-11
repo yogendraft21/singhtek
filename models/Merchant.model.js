@@ -36,7 +36,10 @@ const merchantSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'SinghtekUser',
   },
-  user_name: String,
+  user_name: {
+    type:String,
+    unique:true
+  },
   email: String,
   mobile: String,
   password: String,
