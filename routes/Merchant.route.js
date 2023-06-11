@@ -243,4 +243,45 @@ MerchantRoute.delete('/delete/withdrawal/:id', async (req, res) => {
   }
 });
 
+MerchantRoute.get('/dashboard/data', async (req, res) => {
+  try {
+    const totalAmount = await Withdrawal.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" }
+        }
+      }
+    ]);
+
+    const requestCount = await Withdrawal.countDocuments();
+
+    const successAmount = await Withdrawal.aggregate([
+      {
+        $match: {
+          bank_status: "SUCCESSFULLY"
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          successAmount: { $sum: "$amount" }
+        }
+      }
+    ]);
+
+    const uniqueUsers = await Withdrawal.distinct("user_id").count();
+
+    return res.status(200).json({
+      totalAmount: totalAmount[0]?.totalAmount || 0,
+      requestCount,
+      successAmount: successAmount[0]?.successAmount || 0,
+      uniqueUsers,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: 'An error occurred while fetching dashboard data' });
+  }
+});
+
+
 module.exports = MerchantRoute;
