@@ -3,6 +3,7 @@ const { Connection } = require('./config/db');
 const SinghTekRoute = require('./routes/SinghTekUsers.route');
 const MerchantRoute = require('./routes/Merchant.route');
 const bodyParser = require('body-parser');
+const path = require('path');
 const app = express();
 app.use('/tmp', express.static(path.join(__dirname, 'tmp')));
 // Set the maximum payload size limit to 50MB (adjust as needed)
