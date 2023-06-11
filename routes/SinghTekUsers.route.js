@@ -81,7 +81,7 @@ SinghTekRoute.post("/login", async (req, res) => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const destinationDir = './uploads/';
+    const destinationDir = './tmp/';
     fs.mkdirSync(destinationDir, { recursive: true }); // Create the destination directory if it doesn't exist
     cb(null, destinationDir);
   },
