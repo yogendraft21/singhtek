@@ -203,6 +203,119 @@ SinghTekRoute.post('/merchant/register', upload.fields([
 
 SinghTekRoute.use(auth);
 
+SinghTekRoute.get("/getWithdrawals/sucess",async(req,res)=>{
+  // console.log(req.body)
+   try {
+     const id = req.body.userId;
+   const data = await Withdrawal.find({subAdminID:id,bank_status:"SUCCESSFULLY"});
+   console.log(data)
+   return res.status(200).json(data)
+   } catch (error) {
+    console.log(error) 
+    return res.status(500).json(error)
+   }
+   // console.log('kbj')
+   
+ })
+
+ SinghTekRoute.put('/add/amount/:id', async (req, res) => {
+  try {
+    const merchantId = req.params.id;
+    const { amount, userId } = req.body;
+
+    // Find the merchant in the database based on singhtek_id and userId
+    const merchant = await Merchant.findOne({
+      singhtek_id: userId,
+      _id: merchantId
+    });
+
+    console.log(merchant)
+    if (!merchant) {
+      return res.status(404).json({ error: 'Merchant not found' });
+    }
+
+    // Add the amount to the merchant
+    merchant.amount += amount;
+    await merchant.save();
+
+    // Return a success response
+    res.json({ message: 'Amount added successfully' });
+  } catch (error) {
+    console.error('An error occurred while adding amount:', error);
+    res.status(500).json({ error: 'Failed to add amount' });
+  }
+});
+
+SinghTekRoute.get('/dashboard/data', async (req, res) => {
+  try {
+    const totalAmount = await Withdrawal.aggregate([
+      {
+        $match: {
+          subAdminID: req.body.userId
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" }
+        }
+      }
+    ]);
+
+    const requestCount = await Withdrawal.countDocuments({ subAdminID: req.body.userId });
+
+    const successAmount = await Withdrawal.aggregate([
+      {
+        $match: {
+          subAdminID: req.body.userId,
+          bank_status: "SUCCESSFULLY"
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          successAmount: { $sum: "$amount" }
+        }
+      }
+    ]);
+
+    const uniqueMerchants = await Merchant.distinct("_id", { singhtek_id: req.body.userId }).count();
+
+    return res.status(200).json({
+      totalAmount: totalAmount[0]?.totalAmount || 0,
+      requestCount,
+      successAmount: successAmount[0]?.successAmount || 0,
+      uniqueMerchants,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: 'An error occurred while fetching dashboard data' });
+  }
+});
+
+
+
+ SinghTekRoute.get("/getWithdrawals/pending", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    const data = await Withdrawal.find({
+      subAdminID: userId,
+      merchant_status:'Allow',
+      bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] }
+    });
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred while retrieving the data." });
+  }
+ });
+ 
+ 
+ SinghTekRoute.get("/getWithdrawals/failed",async(req,res)=>{
+   const id = req.body.userId;
+   const data = await Withdrawal.find({subAdminID:id,bank_status:"REJECT"});
+   return res.status(200).json(data)
+ })
+
 SinghTekRoute.get("/getWithdrawals", async (req, res) => {
 
   const id = req.body.userId;
@@ -328,6 +441,7 @@ SinghTekRoute.put("/update/withdrawals", async (req, res) => {
     res.status(500).json({ error: 'An error occurred while updating data' });
   }
 });
+
 
 
 module.exports = SinghTekRoute;

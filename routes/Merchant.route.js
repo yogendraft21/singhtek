@@ -247,6 +247,11 @@ MerchantRoute.get('/dashboard/data', async (req, res) => {
   try {
     const totalAmount = await Withdrawal.aggregate([
       {
+        $match: {
+          merchantID: req.body.userId
+        }
+      },
+      {
         $group: {
           _id: null,
           totalAmount: { $sum: "$amount" }
@@ -254,11 +259,12 @@ MerchantRoute.get('/dashboard/data', async (req, res) => {
       }
     ]);
 
-    const requestCount = await Withdrawal.countDocuments();
+    const requestCount = await Withdrawal.countDocuments({ merchantID: req.body.userId });
 
     const successAmount = await Withdrawal.aggregate([
       {
         $match: {
+          merchantID: req.body.userId,
           bank_status: "SUCCESSFULLY"
         }
       },
@@ -270,7 +276,7 @@ MerchantRoute.get('/dashboard/data', async (req, res) => {
       }
     ]);
 
-    const uniqueUsers = await Withdrawal.distinct("user_id").count();
+    const uniqueUsers = await Withdrawal.distinct("user_id", { merchantID: req.body.userId }).count();
 
     return res.status(200).json({
       totalAmount: totalAmount[0]?.totalAmount || 0,
@@ -282,6 +288,7 @@ MerchantRoute.get('/dashboard/data', async (req, res) => {
     return res.status(500).json({ error: 'An error occurred while fetching dashboard data' });
   }
 });
+
 
 
 module.exports = MerchantRoute;
