@@ -25,7 +25,7 @@ MerchantRoute.post('/login', async (req, res) => {
     
   const { email, password } = req.body;
   try {
-    const user = await Merchant.findOne({ email: email });
+    const user = await Merchant.findOne({ email: email, status:'Allow' });
     console.log(user);
     if (user) {
       // compare hashed password with plain password
