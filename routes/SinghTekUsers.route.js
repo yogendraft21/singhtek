@@ -292,7 +292,11 @@ SinghTekRoute.get('/dashboard/data', async (req, res) => {
   }
 });
 
-
+SinghTekRouteRoute.get("/detail",async(req,res)=>{
+  const user = await SinghtekUser.findOne({_id:req.body.userId});
+  // console.log(user)
+  return res.status(200).json(user);
+})
 
  SinghTekRoute.get("/getWithdrawals/pending", async (req, res) => {
   const userId = req.body.userId;
