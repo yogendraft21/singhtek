@@ -107,13 +107,16 @@ MerchantRoute.post("/user/register", async (req, res) => {
   MerchantRoute.get("/getWithdrawals", async (req, res) => {
     const { userId } = req.body;
     try {
-      const data = await Withdrawal.find({ merchantID: userId, bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] } });
+      const data = await Withdrawal.find({ merchantID: userId, bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] } })
+        .sort({ createdAt: -1 })
+        .limit(6);
       return res.status(200).json(data);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "An error occurred while retrieving the data." });
     }
   });
+  
   
 
 MerchantRoute.get("/getWithdrawals/sucess",async(req,res)=>{
