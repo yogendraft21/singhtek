@@ -66,11 +66,11 @@ SinghTekRoute.post("/login", async (req, res) => {
           const token = jwt.sign({ userId: user._id }, process.env.TOKEN_KEY);
           return res.status(200).json({ token: `${token}` });      
         } else {
-          return res.status(200).json("check email and password")
+          return res.status(401).json("check email and password")
         }
       })
     } else {
-      return res.status(200).json("User Not found")
+      return res.status(401).json("User Not found")
     }
 
   } catch (error) {
