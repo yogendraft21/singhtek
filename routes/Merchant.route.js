@@ -108,8 +108,7 @@ MerchantRoute.post("/user/register", async (req, res) => {
     const { userId } = req.body;
     try {
       const data = await Withdrawal.find({ merchantID: userId, bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] } })
-        .sort({ createdAt: -1 })
-        .limit(6);
+        
       return res.status(200).json(data);
     } catch (error) {
       console.error(error);
