@@ -13,6 +13,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 
 app.use(express.json())
+app.use(bodyParser.json());
 const cors = require('cors');
 const UserRoute = require('./routes/Users.route');
 const AdminRoute = require('./routes/Admin.route');

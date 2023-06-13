@@ -105,7 +105,9 @@ MerchantRoute.post("/user/register", async (req, res) => {
   })
 
 MerchantRoute.get("/getWithdrawals", async (req, res) => {
-    const { userId, page, limit } = req.query; // Extract the page number and limit from the query parameters
+    console.log(req.query)
+    const {userId} = req.body;
+      const{ page, limit } = req.query; // Extract the page number and limit from the query parameters
     const perPage = parseInt(limit) || 10; // Number of results per page, defaulting to 10 if not provided
     const skip = (parseInt(page) - 1) * perPage; // Calculate the number of documents to skip
   
