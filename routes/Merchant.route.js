@@ -104,11 +104,17 @@ MerchantRoute.post("/user/register", async (req, res) => {
     }
   })
 
-  MerchantRoute.get("/getWithdrawals", async (req, res) => {
-    const { userId } = req.body;
+MerchantRoute.get("/getWithdrawals", async (req, res) => {
+    const { userId, page, limit } = req.query; // Extract the page number and limit from the query parameters
+    const perPage = parseInt(limit) || 10; // Number of results per page, defaulting to 10 if not provided
+    const skip = (parseInt(page) - 1) * perPage; // Calculate the number of documents to skip
+  
     try {
       const data = await Withdrawal.find({ merchantID: userId, bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] } })
-        
+        .sort({ createdAt: -1 }) // Sort by descending createdAt
+        .skip(skip) // Skip the appropriate number of documents based on the page number
+        .limit(perPage); // Limit the number of results per page
+  
       return res.status(200).json(data);
     } catch (error) {
       console.error(error);
