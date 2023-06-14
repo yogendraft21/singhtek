@@ -18,6 +18,7 @@ const userWithdrawalStatusSchema = new mongoose.Schema({
     ],
     default: "Placed", // Set the default value to "Placed"
   },
+  { timestamps: true },
 });
 
 const UserWithdrawalStatus = mongoose.model(
