@@ -17,7 +17,6 @@ const userWithdrawalStatusSchema = new mongoose.Schema({
       "Withdrawal Rejected",
     ],
     default: "Placed", // Set the default value to "Placed"
-    required: true,
   },
 });
 
