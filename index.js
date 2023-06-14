@@ -34,6 +34,7 @@ app.get("/",(req,res)=>{
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
+    console.log(req.body)
   
     try {
       // Check in Merchant schema
@@ -79,7 +80,7 @@ app.post('/login', async (req, res) => {
     } catch (error) {
       return res.status(401).json({ error: 'Error while logging in' });
     }
-  });
+});
   
   
 
