@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const userWithdrawalStatusSchema = new mongoose.Schema({
-  Withdrawal_ID: { type: String, required: true },
-  UserID: { type: String, required: true },
+  withdrawal_id: { type: String, required: true },
+  userID: { type: String, required: true },
   amount: { type: Number, required: true },
   beneficiary_branch_code: { type: String, required: true },
   expected_date: { type: Date, required: true },
