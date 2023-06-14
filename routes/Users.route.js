@@ -104,15 +104,15 @@ UserRoute.post('/withdrawal', async (req, res) => {
         ...withdrawalData
       });
 
-      // const withdrawalStatus = new UserWithdrawalStatus({
-      //   withdrawal_id: withdrawalId,
-      //   userID: req.body.user_id,
-      //   amount: withdrawalData.amount,
-      //   beneficiary_branch_code: withdrawalData.beneficiary_branch_code,
-      //   expected_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) // Add 2 days to the current date
-      // });
+      const withdrawalStatus = new UserWithdrawalStatus({
+        withdrawal_id: withdrawalId,
+        userID: req.body.user_id,
+        amount: withdrawalData.amount,
+        beneficiary_branch_code: withdrawalData.beneficiary_branch_code,
+        expected_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) // Add 2 days to the current date
+      });
 
-      // await withdrawalStatus.save();
+      await withdrawalStatus.save();
       await withdrawal.save();
       nextWithdrawalId++;
     }
