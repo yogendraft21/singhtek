@@ -127,11 +127,20 @@ UserRoute.post('/withdrawal', async (req, res) => {
   }
 });
 
+UserRoute.get('/withdrawal/status/:id', async (req, res) => {
+  const userId = req.params.id;
 
-
-
-
-
+  try {
+    const withdrawalStatus = await UserWithdrawalStatus.findOne({ userID: userId });
+    if (withdrawalStatus) {
+      return res.status(200).json(withdrawalStatus);
+    } else {
+      return res.status(404).json({ message: 'User withdrawal status not found' });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: 'Error while retrieving user withdrawal status' });
+  }
+});
 
 
 
