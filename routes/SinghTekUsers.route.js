@@ -431,7 +431,7 @@ SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
   }
 });
 
-SinghTekRoute.put("/update/withdrawals", async (req, res) => {
+SinghTekRoute.patch("/update/withdrawals", async (req, res) => {
   try {
     const updatedData = req.body; // Array of objects containing the updated data
 
