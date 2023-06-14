@@ -43,7 +43,7 @@ app.post('/login', async (req, res) => {
         bcrypt.compare(password, merchantUser.password, (err, result) => {
           if (result) {
             const token = jwt.sign({ userId: merchantUser._id }, process.env.TOKEN_KEY);
-            return res.status(200).json({ token: `${token}`, UserType: `${merchantUser.user_type}`, Username: `${merchantUser.user_name}` });
+            return res.status(200).json({ token: `${token}`, usertype: `${merchantUser.user_type}`, Username: `${merchantUser.user_name}` });
           } else {
             return res.status(401).json({ message: 'Wrong email or password' });
           }
@@ -55,7 +55,7 @@ app.post('/login', async (req, res) => {
           bcrypt.compare(password, user.password, (err, result) => {
             if (result) {
               const token = jwt.sign({ userId: user._id }, process.env.TOKEN_KEY);
-              return res.status(200).json({ token: `${token}`, UserType: `${user.user_type}`, Username: `${user.username}` });
+              return res.status(200).json({ token: `${token}`, usertype: `${user.user_type}`, Username: `${user.username}` });
             } else {
               return res.status(401).json({ message: 'Wrong email or password' });
             }
