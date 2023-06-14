@@ -35,7 +35,7 @@ SinghTekRoute.post("/register", async (req, res) => {
       email,
       designation,
       mobile_no,
-      user_type,
+      user_type:'sub-admin',
       last_name,
       password: hashedPassword,
       image,
@@ -51,33 +51,33 @@ SinghTekRoute.post("/register", async (req, res) => {
   }
 })
 
-SinghTekRoute.post("/login", async (req, res) => {
-  // console.log(req.body)
-  const { email, password } = req.body;
-  try {
-    const user = await SinghtekUser.findOne({ email: email })
-    console.log(user)
-    if (user) {
-      // compare hashed password with plain password
-      bcrypt.compare(password, user.password, (err, result) => {
-        if (result) {
+// SinghTekRoute.post("/login", async (req, res) => {
+//   // console.log(req.body)
+//   const { email, password } = req.body;
+//   try {
+//     const user = await SinghtekUser.findOne({ email: email })
+//     console.log(user)
+//     if (user) {
+//       // compare hashed password with plain password
+//       bcrypt.compare(password, user.password, (err, result) => {
+//         if (result) {
 
-          //on success generate token for user
-          const token = jwt.sign({ userId: user._id }, process.env.TOKEN_KEY);
-          return res.status(200).json({ token: `${token}` });      
-        } else {
-          return res.status(401).json("check email and password")
-        }
-      })
-    } else {
-      return res.status(401).json("User Not found")
-    }
+//           //on success generate token for user
+//           const token = jwt.sign({ userId: user._id }, process.env.TOKEN_KEY);
+//           return res.status(200).json({ token: `${token}` ,UserType:`${user.user_type}`, Username:`${user.username}` });      
+//         } else {
+//           return res.status(401).json("check email and password")
+//         }
+//       })
+//     } else {
+//       return res.status(401).json("User Not found")
+//     }
 
-  } catch (error) {
-    return res.status(401).json({ error: 'error while login singhtek user' })
-  }
+//   } catch (error) {
+//     return res.status(401).json({ error: 'error while login singhtek user' })
+//   }
 
-})
+// })
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -139,7 +139,8 @@ SinghTekRoute.post('/merchant/register', upload.fields([
       bank_ifsc_code,
       gst,
       pan_number,
-      aadhar_number
+      aadhar_number,
+      
     } = businessDetail;
 
     // Extract data from business_address
@@ -188,6 +189,7 @@ SinghTekRoute.post('/merchant/register', upload.fields([
         company_gst: companyGST,
         bank_statement: bankStatement,
       },
+      user_type:'merchant'
     });
 
     // Save the merchant to the database

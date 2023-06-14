@@ -53,6 +53,7 @@ const merchantSchema = new Schema({
     enum: ['Allow', 'Cancel', 'Pending'],
     default: 'Pending',
   },
+  user_type:String
 });
 
 const Merchant = mongoose.model('Merchant', merchantSchema);
