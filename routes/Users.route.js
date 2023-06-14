@@ -6,6 +6,7 @@ const User = require('../models/Users.model');
 const Merchant = require('../models/Merchant.model');
 const { auth } = require('../middleware/auth');
 const Withdrawal = require('../models/Withdraw.model');
+const UserWithdrawalStatus = require('../models/UserWithdrawalStatus.model');
 const UserRoute = express.Router();
 
 UserRoute.get("/", (req, res) => {
@@ -103,6 +104,15 @@ UserRoute.post('/withdrawal', async (req, res) => {
         ...withdrawalData
       });
 
+      const withdrawalStatus = new UserWithdrawalStatus({
+        withdrawal_id: withdrawalId,
+        userID: req.body.user_id,
+        amount: withdrawalData.amount,
+        beneficiary_branch_code: withdrawalData.beneficiary_branch_code,
+        expected_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) // Add 2 days to the current date
+      });
+
+      await withdrawalStatus.save();
       await withdrawal.save();
       nextWithdrawalId++;
     }
