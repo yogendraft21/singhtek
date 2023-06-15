@@ -9,6 +9,13 @@ const Withdrawal = require('../models/Withdraw.model');
 const UserWithdrawalStatus = require('../models/UserWithdrawalStatus.model');
 const UserRoute = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management endpoints
+ */
+
 UserRoute.get("/", (req, res) => {
   return res.status(200).json("User route")
 })

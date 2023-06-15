@@ -46,7 +46,8 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 // Serve Swagger documentation using Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.get('/', (req, res) => {
+
+app.get('/api', (req, res) => {
   return res.status(200).json('Payout Backend');
 });
 
