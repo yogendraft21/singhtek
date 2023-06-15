@@ -133,7 +133,7 @@ UserRoute.get('/withdrawal/status/:id', async (req, res) => {
   const userId = req.params.id;
 
   try {
-    const withdrawalStatus = await UserWithdrawalStatus.findOne({ userID: userId });
+    const withdrawalStatus = await UserWithdrawalStatus.find({ userID: userId });
     if (withdrawalStatus) {
       return res.status(200).json(withdrawalStatus);
     } else {
