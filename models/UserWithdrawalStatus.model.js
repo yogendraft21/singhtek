@@ -7,6 +7,7 @@ const userWithdrawalStatusSchema = new mongoose.Schema(
     amount: { type: Number, required: true },
     beneficiary_branch_code: { type: String, required: true },
     expected_date: { type: Date, required: true },
+    request_date:{type: Date, require:true},
     status: {
       type: String,
       enum: [
@@ -20,7 +21,7 @@ const userWithdrawalStatusSchema = new mongoose.Schema(
       default: "Placed", // Set the default value to "Placed"
     },
   },
-  { timestamps: true } // Enable timestamps
+ 
 );
 
 const UserWithdrawalStatus = mongoose.model(
