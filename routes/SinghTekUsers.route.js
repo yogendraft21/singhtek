@@ -51,33 +51,33 @@ SinghTekRoute.post("/register", async (req, res) => {
   }
 })
 
-// SinghTekRoute.post("/login", async (req, res) => {
-//   // console.log(req.body)
-//   const { email, password } = req.body;
-//   try {
-//     const user = await SinghtekUser.findOne({ email: email })
-//     console.log(user)
-//     if (user) {
-//       // compare hashed password with plain password
-//       bcrypt.compare(password, user.password, (err, result) => {
-//         if (result) {
+SinghTekRoute.post("/login", async (req, res) => {
+  // console.log(req.body)
+  const { email, password } = req.body;
+  try {
+    const user = await SinghtekUser.findOne({ email: email })
+    console.log(user)
+    if (user) {
+      // compare hashed password with plain password
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (result) {
 
-//           //on success generate token for user
-//           const token = jwt.sign({ userId: user._id }, process.env.TOKEN_KEY);
-//           return res.status(200).json({ token: `${token}` ,UserType:`${user.user_type}`, Username:`${user.username}` });      
-//         } else {
-//           return res.status(401).json("check email and password")
-//         }
-//       })
-//     } else {
-//       return res.status(401).json("User Not found")
-//     }
+          //on success generate token for user
+          const token = jwt.sign({ userId: user._id }, process.env.TOKEN_KEY);
+          return res.status(200).json({ token: `${token}` ,UserType:`${user.user_type}`, Username:`${user.username}` });      
+        } else {
+          return res.status(401).json("check email and password")
+        }
+      })
+    } else {
+      return res.status(401).json("User Not found")
+    }
 
-//   } catch (error) {
-//     return res.status(401).json({ error: 'error while login singhtek user' })
-//   }
+  } catch (error) {
+    return res.status(401).json({ error: 'error while login singhtek user' })
+  }
 
-// })
+})
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
