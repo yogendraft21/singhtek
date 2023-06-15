@@ -113,7 +113,8 @@ UserRoute.post('/withdrawal', async (req, res) => {
         amount: withdrawalData.amount,
         beneficiary_branch_code: withdrawalData.beneficiary_branch_code,
         expected_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        request_date: new Date(Date.now())
+        request_date: new Date(Date.now()),
+        status_date: new Date(Date.now())
       });
 
       await withdrawalStatus.save();

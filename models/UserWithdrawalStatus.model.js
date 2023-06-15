@@ -8,6 +8,7 @@ const userWithdrawalStatusSchema = new mongoose.Schema(
     beneficiary_branch_code: { type: String, required: true },
     expected_date: { type: Date, required: true },
     request_date:{type: Date, require:true},
+    status_date:{type: Date, require:true},
     status: {
       type: String,
       enum: [
