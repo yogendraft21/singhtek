@@ -14,7 +14,7 @@ const withdrawalSchema = new mongoose.Schema({
     enum:['Singhtek Infolution OPC Pvt Ltd'],
     default:'Singhtek Infolution OPC Pvt Ltd'
   },
-  debit_account_no: {
+  debit_account_number: {
     type:String,
     enum:['41752120260'],
     default:'41752120260'
