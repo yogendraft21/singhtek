@@ -162,6 +162,7 @@ SinghTekRoute.post('/merchant/register', upload.fields([
       password: hashedPassword,
       transaction_limit: req.body.transaction_limit,
       amount: req.body.amount,
+      user_type:'merchant',
       business_detail: {
         merchant_name,
         business_name,
@@ -189,7 +190,7 @@ SinghTekRoute.post('/merchant/register', upload.fields([
         company_gst: companyGST,
         bank_statement: bankStatement,
       },
-      user_type:'merchant'
+      
     });
 
     // Save the merchant to the database
@@ -432,6 +433,7 @@ SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
 });
 
 SinghTekRoute.patch("/update/withdrawals", async (req, res) => {
+  console.log(req.body)
   try {
     const updatedData = req.body; // Array of objects containing the updated data
 
