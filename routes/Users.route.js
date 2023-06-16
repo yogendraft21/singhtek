@@ -9,6 +9,27 @@ const Withdrawal = require('../models/Withdraw.model');
 const UserWithdrawalStatus = require('../models/UserWithdrawalStatus.model');
 const UserRoute = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management endpoints
+ */
+
+/**
+ * @swagger
+ *  /user:
+ *   get:
+ *     summary: Get user route
+ *     description: Get the user route
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ */
 UserRoute.get("/", (req, res) => {
   return res.status(200).json("User route")
 })
@@ -60,9 +81,59 @@ UserRoute.patch("/edit", async (req, res) => {
   }
 })
 
+/**
+ * @swagger
+ * /user/withdrawal:
+ *   post:
+ *     summary: Create withdrawals
+ *     description: Create new withdrawals for users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               dealer_code:
+ *                 type: string
+ *               beneficiary_branch_code:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *             example:
+ *               dealer_code: ABC123
+ *               beneficiary_branch_code: SBIN1234
+ *               amount: 1000
+ *     responses:
+ *       201:
+ *         description: Withdrawals created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             example:
+ *               message: Your requests have been placed
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *             example:
+ *               error: An error occurred while creating the withdrawals.
+ */
+
+
 UserRoute.post('/withdrawal', async (req, res) => {
 
 
+  console.log(req.body)
   const startWithdrawalId = 5748934;
   const lastWithdrawal = await Withdrawal.findOne().sort({ withdrawal_id: -1 });
   const lastWithdrawalId = lastWithdrawal ? parseInt(lastWithdrawal.withdrawal_id.substring(3)) : startWithdrawalId - 1;
@@ -132,8 +203,9 @@ UserRoute.post('/withdrawal', async (req, res) => {
 });
 
 UserRoute.get('/withdrawal/status/:id', async (req, res) => {
+  // console.log(req.body.userId)
   const userId = req.params.id;
-
+  
   try {
     const withdrawalStatus = await UserWithdrawalStatus.find({ userID: userId });
     if (withdrawalStatus) {
