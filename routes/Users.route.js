@@ -62,6 +62,7 @@ UserRoute.patch("/edit", async (req, res) => {
 
 UserRoute.post('/withdrawal', async (req, res) => {
 
+
   const startWithdrawalId = 5748934;
   const lastWithdrawal = await Withdrawal.findOne().sort({ withdrawal_id: -1 });
   const lastWithdrawalId = lastWithdrawal ? parseInt(lastWithdrawal.withdrawal_id.substring(3)) : startWithdrawalId - 1;
@@ -96,6 +97,7 @@ UserRoute.post('/withdrawal', async (req, res) => {
         merchant_status: 'Pending',
         bank_status: 'Pending',
         product_code,
+        credit_account_number:withdrawalData.credit_account_number,
         beneficiary_branch_code: withdrawalData.beneficiary_branch_code,
         amount: withdrawalData.amount,
         remarks_1: withdrawalId,
