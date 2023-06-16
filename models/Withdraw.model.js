@@ -26,7 +26,7 @@ const withdrawalSchema = new mongoose.Schema({
   },
   dealer_code: String,
   beneficiary_name: String,
-  credit_account_no: String,
+  credit_account_number: String,
   beneficiary_branch_code:{
     type:String,
   },
