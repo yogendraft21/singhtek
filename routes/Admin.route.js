@@ -67,7 +67,7 @@ AdminRoute.post('/login',async(req,res)=>{
     
 })
 
-// AdminRoute.use(auth)
+AdminRoute.use(auth)
 
 AdminRoute.get('/SinghTekUsers',async(req,res)=>{
     try {
