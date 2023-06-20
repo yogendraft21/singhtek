@@ -69,6 +69,44 @@ AdminRoute.post('/login',async(req,res)=>{
 
 AdminRoute.use(auth)
 
+
+AdminRoute.post("/sub-admin/register", async (req, res) => {
+  console.log(req.body)
+  try {
+    const { username, department, first_name, email, designation, mobile_no, user_type, last_name, password, image, docsFile } = req.body;
+    // Check if the username or email already exists
+    const existingUser = await SinghtekUser.findOne({ email: email });
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username or email already exists' });
+    }
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new SinghtekUser instance
+    const singhtekUser = new SinghtekUser({
+      username,
+      department,
+      first_name,
+      email,
+      designation,
+      mobile_no,
+      user_type:'sub-admin',
+      last_name,
+      password: hashedPassword,
+      image,
+      docsFile,
+    });
+
+    // Save the SinghtekUser to the database
+    await singhtekUser.save();
+    res.status(201).json({ message: 'SinghtekUser signed up successfully' });
+  } catch (error) {
+    console.error('Error signing up SinghtekUser:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+})
+
 AdminRoute.get('/SinghTekUsers',async(req,res)=>{
     try {
         // Find all Singhtek users
