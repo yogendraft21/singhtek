@@ -2,33 +2,33 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const businessDetailSchema = new Schema({
-  merchant_name: String,
-  business_name: String,
-  business_type: String,
-  business_category: String,
-  business_sub_category: String,
-  company_expenditure: String,
-  website: String,
-  bank_name: String,
-  bank_account_number: String,
-  bank_ifsc_code: String,
-  gst: String,
-  pan_number: String,
-  aadhar_number: String,
+  merchant_name: { type: String, default: '' },
+  business_name: { type: String, default: '' },
+  business_type: { type: String, default: '' },
+  business_category: { type: String, default: '' },
+  business_sub_category: { type: String, default: '' },
+  company_expenditure: { type: String, default: '' },
+  website: { type: String, default: '' },
+  bank_name: { type: String, default: '' },
+  bank_account_number: { type: String, default: '' },
+  bank_ifsc_code: { type: String, default: '' },
+  gst: { type: String, default: '' },
+  pan_number: { type: String, default: '' },
+  aadhar_number: { type: String, default: '' },
 });
 
 const businessAddressSchema = new Schema({
-  address: String,
-  pincode: String,
-  city: String,
-  state: String,
-  country: String,
+  address: { type: String, default: '' },
+  pincode: { type: String, default: '' },
+  city: { type: String, default: '' },
+  state: { type: String, default: '' },
+  country: { type: String, default: '' },
 });
 
 const kycDocumentsSchema = new Schema({
-  company_pan_card: String,
-  company_gst: String,
-  bank_statement: String,
+  company_pan_card: { type: String, default: '' },
+  company_gst: { type: String, default: '' },
+  bank_statement: { type: String, default: '' },
 });
 
 const merchantSchema = new Schema({
@@ -37,23 +37,24 @@ const merchantSchema = new Schema({
     ref: 'SinghtekUser',
   },
   user_name: {
-    type:String,
-    unique:true
+    type: String,
+    unique: true,
+    default: '',
   },
-  email: String,
-  mobile: String,
-  password: String,
-  transaction_limit: Number,
-  amount:Number,
-  business_detail: businessDetailSchema,
-  business_address: businessAddressSchema,
-  kyc_documents: kycDocumentsSchema,
+  email: { type: String, default: '' },
+  mobile: { type: String, default: '' },
+  password: { type: String, default: '' },
+  transaction_limit: { type: Number, default: 0 },
+  amount: { type: Number, default: 0 },
+  business_detail: { type: businessDetailSchema, default: {} },
+  business_address: { type: businessAddressSchema, default: {} },
+  kyc_documents: { type: kycDocumentsSchema, default: {} },
   status: {
     type: String,
     enum: ['Allow', 'Cancel', 'Pending'],
     default: 'Pending',
   },
-  user_type:String
+  user_type: { type: String, default: '' },
 });
 
 const Merchant = mongoose.model('Merchant', merchantSchema);

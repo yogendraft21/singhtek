@@ -95,14 +95,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-SinghTekRoute.post('/merchant/register', upload.fields([
-  
-  { name: 'companyPanCard', maxCount: 1 },
-  { name: 'companyGST', maxCount: 1 },
-  { name: 'bankStatement', maxCount: 1 },
-]), auth, async (req, res) => {
+SinghTekRoute.post('/merchant/register', auth, async (req, res) => {
+
+  console.log(req.body)
   try {
-    const { email } = req.body;
+    const { email, user_name,merchant_name, mobile,gst, password } = req.body;
 
     // Check if the merchant already exists
     const existingMerchant = await Merchant.findOne({ email });
@@ -117,7 +114,45 @@ SinghTekRoute.post('/merchant/register', upload.fields([
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new merchant with basic details
+    const merchant = new Merchant({
+      singhtek_id: subAdmin._id,
+      user_name: user_name,
+      email,
+      mobile,
+      password: hashedPassword,
+      user_type: 'merchant',
+      business_detail: {
+        merchant_name:req.body.business_detail.merchant_name,
+        gst:req.body.business_detail.gst
+      },
+    });
+
+    // Save the merchant to the database
+    await merchant.save();
+
+    res.status(200).json({ message: 'Merchant registered successfully with basic details' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'An error occurred during merchant registration' });
+  }
+});
+
+SinghTekRoute.patch('/merchant/update/:merchantId', upload.fields([
+  { name: 'companyPanCard', maxCount: 1 },
+  { name: 'companyGST', maxCount: 1 },
+  { name: 'bankStatement', maxCount: 1 },
+]), auth, async (req, res) => {
+  try {
+    const { merchantId } = req.params;
+
+    // Find the merchant by ID
+    const merchant = await Merchant.findById(merchantId);
+    if (!merchant) {
+      return res.status(404).json('Merchant not found');
+    }
 
     // Get file paths from the request
     const companyPanCard = req.files['companyPanCard'][0].path;
@@ -127,7 +162,6 @@ SinghTekRoute.post('/merchant/register', upload.fields([
     // Extract data from business_detail
     const businessDetail = JSON.parse(req.body.business_detail);
     const {
-      merchant_name,
       business_name,
       business_type,
       business_category,
@@ -137,10 +171,8 @@ SinghTekRoute.post('/merchant/register', upload.fields([
       bank_name,
       bank_account_number,
       bank_ifsc_code,
-      gst,
       pan_number,
       aadhar_number,
-      
     } = businessDetail;
 
     // Extract data from business_address
@@ -153,55 +185,45 @@ SinghTekRoute.post('/merchant/register', upload.fields([
       country
     } = businessAddress;
 
-    // Create a new merchant
-    const merchant = new Merchant({
-      singhtek_id: subAdmin._id,
-      user_name: req.body.user_name,
-      email: req.body.email,
-      mobile: req.body.mobile,
-      password: hashedPassword,
-      transaction_limit: req.body.transaction_limit,
-      amount: req.body.amount,
-      user_type:'merchant',
-      business_detail: {
-        merchant_name,
-        business_name,
-        business_type,
-        business_category,
-        business_sub_category,
-        company_expenditure,
-        website,
-        bank_name,
-        bank_account_number,
-        bank_ifsc_code,
-        gst,
-        pan_number,
-        aadhar_number,
-      },
-      business_address: {
-        address,
-        pincode,
-        city,
-        state,
-        country,
-      },
-      kyc_documents: {
-        company_pan_card: companyPanCard,
-        company_gst: companyGST,
-        bank_statement: bankStatement,
-      },
-      
-    });
+    // Update the merchant's details
+    merchant.transaction_limit = req.body.transaction_limit;
+    merchant.amount = req.body.amount;
+    merchant.business_detail = {
+      business_name,
+      business_type,
+      business_category,
+      business_sub_category,
+      company_expenditure,
+      website,
+      bank_name,
+      bank_account_number,
+      bank_ifsc_code,
+      pan_number,
+      aadhar_number,
+    };
+    merchant.business_address = {
+      address,
+      pincode,
+      city,
+      state,
+      country,
+    };
+    merchant.kyc_documents = {
+      company_pan_card: companyPanCard,
+      company_gst: companyGST,
+      bank_statement: bankStatement,
+    };
 
-    // Save the merchant to the database
+    // Save the updated merchant to the database
     await merchant.save();
 
-    res.status(200).json({ message: 'Merchant signup successful' });
+    res.status(200).json({ message: 'Merchant details updated successfully' });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'An error occurred during merchant signup' });
+    res.status(500).json({ error: 'An error occurred during merchant details update' });
   }
 });
+
 
 
 SinghTekRoute.use(auth);
