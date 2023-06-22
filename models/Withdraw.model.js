@@ -45,7 +45,7 @@ const withdrawalSchema = new mongoose.Schema({
   },
   bank_status: {
     type: String,
-    enum: ['SUCCESSFULLY', 'Pending', 'REJECT','APPROVED','INPROCESS','HOLD'],
+    enum: ['Success', 'Pending', 'Reject','Approved','Inprocess','Hold'],
     default: 'Pending'
   },
   utr_number: {
@@ -59,6 +59,11 @@ const withdrawalSchema = new mongoose.Schema({
   merchantID: String,
   subAdminID:String,
   merchant_status: {
+    type: String,
+    enum: ['Allow', 'Pending', 'Cancel'],
+    default: 'Pending'
+  },
+  admin_status: {
     type: String,
     enum: ['Allow', 'Pending', 'Cancel'],
     default: 'Pending'

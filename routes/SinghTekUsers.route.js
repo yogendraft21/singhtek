@@ -97,7 +97,7 @@ const upload = multer({ storage });
 
 SinghTekRoute.post('/merchant/register', auth, async (req, res) => {
 
-  console.log(req.body)
+  // console.log(req.body)
   try {
     const { email, user_name,merchant_name, mobile,gst, password } = req.body;
 
@@ -150,10 +150,14 @@ SinghTekRoute.patch('/merchant/update/:merchantId', upload.fields([
 
     // Find the merchant by ID
     const merchant = await Merchant.findById(merchantId);
+
     if (!merchant) {
       return res.status(404).json('Merchant not found');
     }
+ 
 
+
+    
     // Get file paths from the request
     const companyPanCard = req.files['companyPanCard'][0].path;
     const companyGST = req.files['companyGST'][0].path;
@@ -162,6 +166,7 @@ SinghTekRoute.patch('/merchant/update/:merchantId', upload.fields([
     // Extract data from business_detail
     const businessDetail = JSON.parse(req.body.business_detail);
     const {
+
       business_name,
       business_type,
       business_category,
@@ -189,6 +194,7 @@ SinghTekRoute.patch('/merchant/update/:merchantId', upload.fields([
     merchant.transaction_limit = req.body.transaction_limit;
     merchant.amount = req.body.amount;
     merchant.business_detail = {
+      merchant_name:merchant.business_detail.merchant_name,
       business_name,
       business_type,
       business_category,
@@ -198,6 +204,7 @@ SinghTekRoute.patch('/merchant/update/:merchantId', upload.fields([
       bank_name,
       bank_account_number,
       bank_ifsc_code,
+      gst:merchant.business_detail.gst,
       pan_number,
       aadhar_number,
     };
@@ -225,15 +232,14 @@ SinghTekRoute.patch('/merchant/update/:merchantId', upload.fields([
 });
 
 
-
 SinghTekRoute.use(auth);
 
 SinghTekRoute.get("/getWithdrawals/sucess",async(req,res)=>{
   // console.log(req.body)
    try {
      const id = req.body.userId;
-   const data = await Withdrawal.find({subAdminID:id,bank_status:"SUCCESSFULLY"});
-   console.log(data)
+   const data = await Withdrawal.find({subAdminID:id,bank_status:"Success"});
+  //  console.log(data)
    return res.status(200).json(data)
    } catch (error) {
     console.log(error) 
@@ -293,7 +299,7 @@ SinghTekRoute.get('/dashboard/data', async (req, res) => {
       {
         $match: {
           subAdminID: req.body.userId,
-          bank_status: "SUCCESSFULLY"
+          bank_status: "Success"
         }
       },
       {
@@ -329,7 +335,7 @@ SinghTekRoute.get("/detail",async(req,res)=>{
     const data = await Withdrawal.find({
       subAdminID: userId,
       merchant_status:'Allow',
-      bank_status: { $nin: ["SUCCESSFULLY", "REJECT"] }
+      bank_status: { $nin: ["Success", "Reject"] }
     });
     return res.status(200).json(data);
   } catch (error) {
@@ -341,7 +347,7 @@ SinghTekRoute.get("/detail",async(req,res)=>{
  
  SinghTekRoute.get("/getWithdrawals/failed",async(req,res)=>{
    const id = req.body.userId;
-   const data = await Withdrawal.find({subAdminID:id,bank_status:"REJECT"});
+   const data = await Withdrawal.find({subAdminID:id,bank_status:"Reject"});
    return res.status(200).json(data)
  })
 
@@ -355,7 +361,7 @@ SinghTekRoute.get("/getWithdrawals", async (req, res) => {
 
 SinghTekRoute.get("/getWithdrawals/:merchantid", async (req, res) => {
   const mid = req.params.merchantid;
-  const data = await Withdrawal.find({ subAdminID: req.body.userId, merchantID: mid, merchant_status:'Allow',bank_status:"Pending" });
+  const data = await Withdrawal.find({ subAdminID: req.body.userId, merchantID: mid, merchant_status:'Allow',bank_status:"Pending",admin_status:"Allow" });
   // console.log(data)
   return res.status(200).json(data)
 })
@@ -363,7 +369,7 @@ SinghTekRoute.get("/getWithdrawals/:merchantid", async (req, res) => {
 SinghTekRoute.get("/allWithdrawals", async (req, res) => {
   const id = req.body.userId;
   try {
-    const data = await Withdrawal.find({ subAdminID: id, merchant_status: 'Allow',bank_status:"Pending" });
+    const data = await Withdrawal.find({ subAdminID: id, merchant_status: 'Allow',bank_status:"Pending",admin_status:"Allow" });
     // console.log(data)
     return res.status(200).json(data)
   } catch (error) {
@@ -429,9 +435,10 @@ SinghTekRoute.post('/merchant/updatestatus', async (req, res) => {
   }
 });
 
-SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
+SinghTekRoute.post('/withdrawal/updatestatus/admin', async (req, res) => {
   // Retrieve the withdrawal ID and merchant status from the request body
   const { withdrawal_id, merchant_status } = req.body;
+  console.log(req.body)
 
   try {
     // Find the withdrawal by ID
@@ -443,7 +450,7 @@ SinghTekRoute.post('/withdrawal/updatestatus', async (req, res) => {
     }
 
     // Update the merchant status
-    withdrawal.merchant_status = merchant_status;
+    withdrawal.admin_status = merchant_status;
     await withdrawal.save();
 
     // Return a response indicating the status update
